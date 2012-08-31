@@ -160,6 +160,9 @@ void Window::invalidate(void)
 	}
 }
 
+/**
+ * ウィンドウのクライアント領域の中身をスライドさせます。
+ */
 void Window::scrollWindowContent(int dx, int dy)
 {
 	if(hwnd_){
@@ -172,38 +175,35 @@ void Window::scrollWindowContent(int dx, int dy)
 // ScrollBar
 // --------------------------------------------------------------------------
 
+/**
+ * スクロールバーを表示するかどうかを設定します。
+ */
 void Window::setScrollBarVisible(int bar, bool visible)
 {
 	if(hwnd_){
 		::ShowScrollBar(hwnd_, bar, visible ? TRUE : FALSE);
 	}
 }
-void Window::setHScrollBarVisible(bool visible)
-{
-	setScrollBarVisible(SB_HORZ, visible);
-}
-void Window::setVScrollBarVisible(bool visible)
-{
-	setScrollBarVisible(SB_VERT, visible);
-}
+void Window::setHScrollBarVisible(bool visible){setScrollBarVisible(SB_HORZ, visible);}
+void Window::setVScrollBarVisible(bool visible){setScrollBarVisible(SB_VERT, visible);}
 
+/**
+ * スクロールバーの位置の有効範囲を設定します。
+ */
 void Window::setScrollRange(int bar, int minValue, int maxValue)
 {
 	if(hwnd_){
 		::SetScrollRange(hwnd_, bar, minValue, maxValue, TRUE);
 	}
 }
+void Window::setHScrollRange(int minValue, int maxValue){setScrollRange(SB_HORZ, minValue, maxValue);}
+void Window::setVScrollRange(int minValue, int maxValue){setScrollRange(SB_VERT, minValue, maxValue);}
 
-void Window::setHScrollRange(int minValue, int maxValue)
-{
-	setScrollRange(SB_HORZ, minValue, maxValue);
-}
-
-void Window::setVScrollRange(int minValue, int maxValue)
-{
-	setScrollRange(SB_VERT, minValue, maxValue);
-}
-
+/**
+ * スクロールバーの位置を設定します。
+ *
+ * スクロールバーの位置が変化したとき、onHScrollPositionChangedまたはonVScrollPositionChangedを呼び出します。
+ */
 void Window::setScrollPosition(int bar, int value)
 {
 	if(hwnd_){
@@ -230,17 +230,12 @@ void Window::setScrollPosition(int bar, int value)
 		}
 	}
 }
+void Window::setHScrollPosition(int value){setScrollPosition(SB_HORZ, value);}
+void Window::setVScrollPosition(int value){setScrollPosition(SB_VERT, value);}
 
-void Window::setHScrollPosition(int value)
-{
-	setScrollPosition(SB_HORZ, value);
-}
-
-void Window::setVScrollPosition(int value)
-{
-	setScrollPosition(SB_VERT, value);
-}
-
+/**
+ * スクロールバーのつまみの長さ(見えている範囲を表す量)を設定します。
+ */
 void Window::setScrollVisibleAmount(int bar, int value)
 {
 	if(hwnd_){
@@ -250,32 +245,22 @@ void Window::setScrollVisibleAmount(int bar, int value)
 		::SetScrollInfo(hwnd_, bar, &si, TRUE);
 	}
 }
+void Window::setHScrollVisibleAmount(int value){setScrollVisibleAmount(SB_HORZ, value);}
+void Window::setVScrollVisibleAmount(int value){setScrollVisibleAmount(SB_VERT, value);}
 
-void Window::setHScrollVisibleAmount(int value)
-{
-	setScrollVisibleAmount(SB_HORZ, value);
-}
-
-void Window::setVScrollVisibleAmount(int value)
-{
-	setScrollVisibleAmount(SB_VERT, value);
-}
-
+/**
+ * 指定された量だけスクロールバーの位置を変化させます。
+ */
 void Window::scroll(int bar, int delta)
 {
 	setScrollPosition(bar, getVScrollPosition() + delta);
 }
+void Window::scrollH(int delta){scroll(SB_HORZ, delta);}
+void Window::scrollV(int delta){scroll(SB_VERT, delta);}
 
-void Window::scrollH(int delta)
-{
-	scroll(SB_HORZ, delta);
-}
-
-void Window::scrollV(int delta)
-{
-	scroll(SB_VERT, delta);
-}
-
+/**
+ * 現在のスクロールバーの位置を返します。
+ */
 int Window::getScrollPosition(int bar) const
 {
 	if(hwnd_){
@@ -285,15 +270,12 @@ int Window::getScrollPosition(int bar) const
 		return 0;
 	}
 }
-int Window::getHScrollPosition() const
-{
-	return getScrollPosition(SB_HORZ);
-}
-int Window::getVScrollPosition() const
-{
-	return getScrollPosition(SB_VERT);
-}
+int Window::getHScrollPosition() const{return getScrollPosition(SB_HORZ);}
+int Window::getVScrollPosition() const{return getScrollPosition(SB_VERT);}
 
+/**
+ * スクロールバーのつまみの長さ(見えている範囲を表す量)を返します。
+ */
 int Window::getScrollVisibleAmount(int bar) const
 {
 	if(hwnd_){
@@ -305,16 +287,19 @@ int Window::getScrollVisibleAmount(int bar) const
 	}
 	return 0;
 }
-int Window::getHScrollVisibleAmount() const
-{
-	return getScrollVisibleAmount(SB_HORZ);
-}
-int Window::getVScrollVisibleAmount() const
-{
-	return getScrollVisibleAmount(SB_VERT);
-}
+int Window::getHScrollVisibleAmount() const{return getScrollVisibleAmount(SB_HORZ);}
+int Window::getVScrollVisibleAmount() const{return getScrollVisibleAmount(SB_VERT);}
 
-
+/**
+ * WM_VSCROLLやWM_HSCROLLのデフォルト実装です。
+ *
+ * Window::setScrollPositionを呼び出してスクロールバーの位置を変更します。
+ *
+ * Window::setScrollPositionはスクロールバーの位置を変更した後、
+ * Window::onHScrollPositionChangedまたはWindow::onVScrollPositionChangedを
+ * 呼び出します。スクロールバーの位置が変わったときの処理を行いたい場合は、
+ * それらの関数をオーバーライドしてください。
+ */
 void Window::onScrollDefault(int bar, int action, int pos)
 {
 	switch(action){
@@ -356,15 +341,8 @@ void Window::onHScroll(int action, int pos)
 {
 	onScrollDefault(SB_HORZ, action, pos);
 }
-void Window::onVScrollPositionChanged(int oldPos, int newPos)
-{
-}
-void Window::onHScrollPositionChanged(int oldPos, int newPos)
-{
-}
-
-void Window::onMouseWheel(int delta, unsigned int keys, int x, int y)
-{
-}
+void Window::onVScrollPositionChanged(int oldPos, int newPos){}
+void Window::onHScrollPositionChanged(int oldPos, int newPos){}
+void Window::onMouseWheel(int delta, unsigned int keys, int x, int y){}
 
 }//namespace piclist
