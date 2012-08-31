@@ -56,73 +56,6 @@ bool Window::create()
 	return true;
 }
 
-LRESULT CALLBACK Window::wndprocStatic(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
-{
-	if(msg == WM_CREATE){
-		::SetWindowLongPtr(hwnd, GWL_USERDATA,
-			(LONG_PTR)(((CREATESTRUCT *)lparam)->lpCreateParams));
-	}
-
-	Window *pThis = (Window *)(LONG_PTR)::GetWindowLongPtr(hwnd, GWL_USERDATA);
-
-	if(pThis != NULL){
-		if(!pThis->hwnd_){
-			pThis->hwnd_ = hwnd;
-		}
-		return pThis->wndproc(hwnd, msg, wparam, lparam);
-	}
-	else{
-		return ::DefWindowProc(hwnd, msg, wparam, lparam);
-	}
-}
-
-LRESULT Window::wndproc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
-{
-	switch(msg){
-	case WM_CREATE:
-		onCreate();
-		break;
-	case WM_PAINT:
-		{
-			::PAINTSTRUCT ps;
-			HDC hdc = ::BeginPaint(hwnd, &ps);
-			onPaint(hdc);
-			::EndPaint(hwnd, &ps);
-		}
-		break;
-	case WM_SIZING:
-		{
-			LPRECT pr = (LPRECT)lparam;
-			Rect2i r(pr->left, pr->top, pr->right, pr->bottom);
-			onSizing(wparam, r);
-		}
-		break;
-	case WM_SIZE:
-		onSize(wparam, LOWORD(lparam), HIWORD(lparam));
-		break;
-	case WM_HSCROLL:
-		{
-			onHScroll(LOWORD(wparam), HIWORD(wparam));
-		}
-		break;
-	case WM_VSCROLL:
-		{
-			onVScroll(LOWORD(wparam), HIWORD(wparam));
-		}
-		break;
-	case WM_MOUSEWHEEL:
-		onMouseWheel((SHORT)HIWORD(wparam), LOWORD(wparam), LOWORD(lparam), HIWORD(lparam));
-		break;
-	case WM_DESTROY:
-		onDestroy();
-		PostQuitMessage(0);
-		break;
-	default:
-		return ::DefWindowProc(hwnd, msg, wparam, lparam);
-	}
-	return 0;
-}
-
 void Window::showWindow(int nCmdShow)
 {
 	if(hwnd_){
@@ -457,6 +390,73 @@ void Window::onScrollDefault(int bar, int action, int pos)
 // --------------------------------------------------------------------------
 // Window Message Handlers.
 // --------------------------------------------------------------------------
+
+LRESULT CALLBACK Window::wndprocStatic(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
+{
+	if(msg == WM_CREATE){
+		::SetWindowLongPtr(hwnd, GWL_USERDATA,
+			(LONG_PTR)(((CREATESTRUCT *)lparam)->lpCreateParams));
+	}
+
+	Window *pThis = (Window *)(LONG_PTR)::GetWindowLongPtr(hwnd, GWL_USERDATA);
+
+	if(pThis != NULL){
+		if(!pThis->hwnd_){
+			pThis->hwnd_ = hwnd;
+		}
+		return pThis->wndproc(hwnd, msg, wparam, lparam);
+	}
+	else{
+		return ::DefWindowProc(hwnd, msg, wparam, lparam);
+	}
+}
+
+LRESULT Window::wndproc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
+{
+	switch(msg){
+	case WM_CREATE:
+		onCreate();
+		break;
+	case WM_PAINT:
+		{
+			::PAINTSTRUCT ps;
+			HDC hdc = ::BeginPaint(hwnd, &ps);
+			onPaint(hdc);
+			::EndPaint(hwnd, &ps);
+		}
+		break;
+	case WM_SIZING:
+		{
+			LPRECT pr = (LPRECT)lparam;
+			Rect2i r(pr->left, pr->top, pr->right, pr->bottom);
+			onSizing(wparam, r);
+		}
+		break;
+	case WM_SIZE:
+		onSize(wparam, LOWORD(lparam), HIWORD(lparam));
+		break;
+	case WM_HSCROLL:
+		{
+			onHScroll(LOWORD(wparam), HIWORD(wparam));
+		}
+		break;
+	case WM_VSCROLL:
+		{
+			onVScroll(LOWORD(wparam), HIWORD(wparam));
+		}
+		break;
+	case WM_MOUSEWHEEL:
+		onMouseWheel((SHORT)HIWORD(wparam), LOWORD(wparam), LOWORD(lparam), HIWORD(lparam));
+		break;
+	case WM_DESTROY:
+		onDestroy();
+		PostQuitMessage(0);
+		break;
+	default:
+		return ::DefWindowProc(hwnd, msg, wparam, lparam);
+	}
+	return 0;
+}
 
 void Window::onCreate(void){}
 void Window::onPaint(HDC hdc){}
