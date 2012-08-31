@@ -36,24 +36,25 @@ void AppWindow::onDestroy()
 
 void AppWindow::onPaint(HDC hdc)
 {
-	const int scrollY = getVScrollPosition();
-
-	const Size2i clientSize = getClientSize();
-
 	Gdiplus::Graphics graphics(hdc);
 
+	// set scroll matrix
+	const int scrollY = getVScrollPosition();
 	Gdiplus::Matrix mat;
 	mat.Translate(0, static_cast<Gdiplus::REAL>(-scrollY));
 	graphics.MultiplyTransform(&mat);
 
+	// prepare font
 	Gdiplus::SolidBrush textBrush(Gdiplus::Color(255, 0, 0, 0));
 	Gdiplus::FontFamily fontFamily(_T("MS GOTHIC"));
 	Gdiplus::Font font(&fontFamily, static_cast<Gdiplus::REAL>(layout_.getNameHeight()), Gdiplus::FontStyleRegular, Gdiplus::UnitPixel);
 
+	// draw cells
 	const std::size_t pictureCount = pictures_.size();
 	for(std::size_t index = 0; index < pictureCount; ++index){
-
 		const Picture &pic = pictures_[index];
+
+		// image.
 		if(ImagePtr im = imageCache_.getImage(pic.getFilePath())){
 			const double srcW = im->getWidth();
 			const double srcH = im->getHeight();
@@ -64,6 +65,7 @@ void AppWindow::onPaint(HDC hdc)
 			graphics.DrawImage(im->getGdiPlusImage(), cellImageRect.left, cellImageRect.top, dstW, dstH);
 		}
 
+		// name.
 		const Rect2i cellNameRect = layout_.getNameRect(index);
 		Gdiplus::PointF namePos(static_cast<Gdiplus::REAL>(cellNameRect.left), static_cast<Gdiplus::REAL>(cellNameRect.top));
 		graphics.DrawString(pic.getFileNameBase().c_str(), -1, &font, namePos, &textBrush);
