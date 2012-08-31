@@ -7,20 +7,32 @@
 
 namespace piclist{
 
-AppWindow::AppWindow()
+static const TCHAR * const REGISTRY_KEY = _T("SOFTWARE\\Misohena\\piclist\\");
+static const TCHAR * const WINDOW_SUFFIX = _T(" - piclist");
+
+AppWindow::AppWindow(const String &windowName)
+	: windowName_(windowName)
 {
-	for(FileEnumerator fe(_T("..\\sample\\*.bmp")); fe.valid(); fe.increment()){
-		pictures_.push_back(Picture(fe.getEntryFilePath()));
-	}
 }
 
 AppWindow::~AppWindow()
 {
 }
 
+bool AppWindow::restoreWindowPlacement()
+{
+	return Window::restoreWindowPlacement(REGISTRY_KEY + windowName_);
+}
+
 void AppWindow::onCreate()
 {
+	setCaption(windowName_ + WINDOW_SUFFIX);
 	updateLayout();
+}
+
+void AppWindow::onDestroy()
+{
+	backupWindowPlacement(REGISTRY_KEY + windowName_);
 }
 
 void AppWindow::onPaint(HDC hdc)
@@ -82,7 +94,6 @@ void AppWindow::onMouseWheel(int delta, unsigned int keys, int x, int y)
 {
 	scrollV(-100 * delta/WHEEL_DELTA);
 }
-
 
 void AppWindow::updateLayout(void)
 {

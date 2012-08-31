@@ -27,6 +27,15 @@ namespace piclist{
 			}
 			return base;
 		}
+
+		class LessFilePath
+		{
+		public:
+			bool operator()(const Picture &lhs, const Picture &rhs) const
+			{
+				return lhs.getFilePath() < rhs.getFilePath();
+			}
+		};
 	};
 
 	typedef std::deque<Picture> PictureContainer;
