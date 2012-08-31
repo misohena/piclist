@@ -210,6 +210,7 @@ void Window::setScrollPosition(int bar, int value)
 		const int old = getScrollPosition(bar);
 		int minPos, maxPos;
 		if(::GetScrollRange(hwnd_, bar, &minPos, &maxPos)){
+			maxPos -= getScrollVisibleAmount(bar);
 			if(value < minPos){
 				value = minPos;
 			}
@@ -217,13 +218,15 @@ void Window::setScrollPosition(int bar, int value)
 				value = maxPos;
 			}
 		}
-		::SetScrollPos(hwnd_, bar, value, TRUE);
+		if(value != old){
+			::SetScrollPos(hwnd_, bar, value, TRUE);
 
-		if(bar == SB_HORZ){
-			onHScrollPositionChanged(old, value);
-		}
-		else if(bar == SB_VERT){
-			onVScrollPositionChanged(old, value);
+			if(bar == SB_HORZ){
+				onHScrollPositionChanged(old, value);
+			}
+			else if(bar == SB_VERT){
+				onVScrollPositionChanged(old, value);
+			}
 		}
 	}
 }
