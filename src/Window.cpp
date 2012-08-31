@@ -97,6 +97,9 @@ LRESULT Window::wndproc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 			onSizing(wparam, r);
 		}
 		break;
+	case WM_SIZE:
+		onSize(wparam, LOWORD(lparam), HIWORD(lparam));
+		break;
 	case WM_HSCROLL:
 		{
 			onHScroll(LOWORD(wparam), HIWORD(wparam));
@@ -333,6 +336,7 @@ void Window::onScrollDefault(int bar, int action, int pos)
 void Window::onCreate(void){}
 void Window::onPaint(HDC hdc){}
 void Window::onSizing(int edge, const Rect2i &rect){}
+void Window::onSize(int cause, int newClientWidth, int newClientHeight){}
 void Window::onVScroll(int action, int pos)
 {
 	onScrollDefault(SB_VERT, action, pos);

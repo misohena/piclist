@@ -65,6 +65,11 @@ void AppWindow::onSizing(int edge, const Rect2i &)
 	updateLayout();
 }
 
+void AppWindow::onSize(int cause, int newClientWidth, int newClientHeight)
+{
+	updateLayout();
+}
+
 void AppWindow::onVScrollPositionChanged(int oldPos, int newPos)
 {
 	if(oldPos != newPos){

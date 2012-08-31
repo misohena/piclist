@@ -74,6 +74,7 @@ namespace piclist{
 
 		void onScrollDefault(int bar, int action, int pos);
 
+		// Message Handlers
 	private:
 		static LRESULT CALLBACK wndprocStatic(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 	protected:
@@ -82,6 +83,7 @@ namespace piclist{
 		virtual void onCreate(void);
 		virtual void onPaint(HDC hdc);
 		virtual void onSizing(int edge, const Rect2i &rect);
+		virtual void onSize(int cause, int newClientWidth, int newClientHeight);
 		virtual void onVScroll(int action, int pos);
 		virtual void onHScroll(int action, int pos);
 		virtual void onVScrollPositionChanged(int oldPos, int newPos);
