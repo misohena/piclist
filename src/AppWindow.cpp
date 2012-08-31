@@ -1,7 +1,7 @@
 #include <windows.h>
 #include <tchar.h>
 #include <GdiPlus.h>
-#include "File.h"
+#include "CommandLine.h"
 #include "AppWindow.h"
 
 
@@ -92,6 +92,14 @@ void AppWindow::onVScrollPositionChanged(int oldPos, int newPos)
 void AppWindow::onMouseWheel(int delta, unsigned int keys, int x, int y)
 {
 	scrollV(-100 * delta/WHEEL_DELTA);
+}
+
+void AppWindow::onCopyData(HWND srcwnd, ULONG_PTR dwData, DWORD cbData, PVOID lpData)
+{
+	TCHAR *str = (TCHAR *)lpData;
+	CommandLineParser cmdline;
+	cmdline.parse(str);
+	setPictures(cmdline.getPictures());
 }
 
 void AppWindow::updateLayout(void)

@@ -99,6 +99,7 @@ namespace piclist{
 		virtual void onVScrollPositionChanged(int oldPos, int newPos);
 		virtual void onHScrollPositionChanged(int oldPos, int newPos);
 		virtual void onMouseWheel(int delta, unsigned int keys, int x, int y);
+		virtual void onCopyData(HWND srcwnd, ULONG_PTR dwData, DWORD cbData, PVOID lpData);
 		virtual void onDestroy();
 
 	};

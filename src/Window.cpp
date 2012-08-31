@@ -448,6 +448,12 @@ LRESULT Window::wndproc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 	case WM_MOUSEWHEEL:
 		onMouseWheel((SHORT)HIWORD(wparam), LOWORD(wparam), LOWORD(lparam), HIWORD(lparam));
 		break;
+	case WM_COPYDATA:
+		{
+			COPYDATASTRUCT *cd = (COPYDATASTRUCT *)lparam;
+			onCopyData((HWND)wparam, cd->dwData, cd->cbData, cd->lpData);
+		}
+		break;
 	case WM_DESTROY:
 		onDestroy();
 		PostQuitMessage(0);
@@ -473,6 +479,7 @@ void Window::onHScroll(int action, int pos)
 void Window::onVScrollPositionChanged(int oldPos, int newPos){}
 void Window::onHScrollPositionChanged(int oldPos, int newPos){}
 void Window::onMouseWheel(int delta, unsigned int keys, int x, int y){}
+void Window::onCopyData(HWND srcwnd, ULONG_PTR dwData, DWORD cbData, PVOID lpData){}
 void Window::onDestroy(){}
 
 }//namespace piclist

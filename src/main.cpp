@@ -47,6 +47,17 @@ public:
 		static const TCHAR * const WINDOW_CLASS_NAME = _T("PicListWindowClass");
 
 		const String windowCaption = cmdline.getWindowName() + WINDOW_SUFFIX;
+
+		if(HWND hwnd = ::FindWindow(WINDOW_CLASS_NAME, windowCaption.c_str())){
+			::COPYDATASTRUCT cd;
+			cd.dwData = 0;
+			cd.cbData = (lstrlen(cmdlineStr) + 1) * sizeof(TCHAR);
+			cd.lpData = cmdlineStr;
+			::SendMessage(hwnd, WM_COPYDATA, NULL, (LPARAM)&cd);
+			return false;
+		}
+
+		window_.reset(new AppWindow(WINDOW_CLASS_NAME, cmdline.getWindowName()));
 		if(!window_->create()){
 			return false;
 		}
