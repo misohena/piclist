@@ -20,7 +20,7 @@ namespace piclist{
 		int vScrollLarge_;
 		int hScrollLarge_;
 	public:
-		Window();
+		explicit Window(const String &className);
 		virtual ~Window();
 		bool create();
 

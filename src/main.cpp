@@ -135,7 +135,10 @@ class PicListApp
 public:
 	bool init(int nCmdShow)
 	{
-		window_.reset(new AppWindow(_T("Default")));
+		static const TCHAR * const WINDOW_CLASS_NAME = _T("PicListWindowClass");
+		static const String windowName = _T("Default");
+
+		window_.reset(new AppWindow(WINDOW_CLASS_NAME, windowName));
 		if(!window_->create()){
 			return false;
 		}

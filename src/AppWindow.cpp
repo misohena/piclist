@@ -10,8 +10,9 @@ namespace piclist{
 static const TCHAR * const REGISTRY_KEY = _T("SOFTWARE\\Misohena\\piclist\\");
 static const TCHAR * const WINDOW_SUFFIX = _T(" - piclist");
 
-AppWindow::AppWindow(const String &windowName)
-	: windowName_(windowName)
+AppWindow::AppWindow(const String &className, const String &windowName)
+	: Window(className)
+	, windowName_(windowName)
 {
 }
 

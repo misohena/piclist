@@ -21,7 +21,7 @@ namespace piclist{
 		Layout layout_;
 
 	public:
-		explicit AppWindow(const String &windowName);
+		AppWindow(const String &className, const String &windowName);
 		virtual ~AppWindow();
 
 		bool restoreWindowPlacement();

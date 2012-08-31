@@ -5,9 +5,9 @@
 
 namespace piclist{
 
-Window::Window()
+Window::Window(const String &className)
 	: hwnd_(NULL)
-	, className_(_T("PicListWindowClass"))
+	, className_(className)
 	, vScrollSmall_(1)
 	, hScrollSmall_(1)
 	, vScrollLarge_(10)
