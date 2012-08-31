@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <tchar.h>
 #include <GdiPlus.h>
+#include "File.h"
 #include "AppWindow.h"
 
 
@@ -8,10 +9,9 @@ namespace piclist{
 
 AppWindow::AppWindow()
 {
-	pictures_.push_back(Picture(_T("..\\jpeg.jpg")));
-	pictures_.push_back(Picture(_T("..\\opaque.png")));
-	pictures_.push_back(Picture(_T("..\\translucent.png")));
-	pictures_.push_back(Picture(_T("..\\bitmap.bmp")));
+	for(FileEnumerator fe(_T("..\\sample\\*.bmp")); fe.valid(); fe.increment()){
+		pictures_.push_back(Picture(fe.getEntryFilePath()));
+	}
 }
 
 AppWindow::~AppWindow()
