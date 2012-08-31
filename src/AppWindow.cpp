@@ -73,6 +73,12 @@ void AppWindow::onVScrollPositionChanged(int oldPos, int newPos)
 	}
 }
 
+void AppWindow::onMouseWheel(int delta, unsigned int keys, int x, int y)
+{
+	scrollV(-100 * delta/WHEEL_DELTA);
+}
+
+
 void AppWindow::updateLayout(void)
 {
 	const Size2i clientSize1 = getClientSize();

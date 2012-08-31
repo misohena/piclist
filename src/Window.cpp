@@ -107,6 +107,9 @@ LRESULT Window::wndproc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 			onVScroll(LOWORD(wparam), HIWORD(wparam));
 		}
 		break;
+	case WM_MOUSEWHEEL:
+		onMouseWheel((SHORT)HIWORD(wparam), LOWORD(wparam), LOWORD(lparam), HIWORD(lparam));
+		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
@@ -334,6 +337,10 @@ void Window::onVScrollPositionChanged(int oldPos, int newPos)
 {
 }
 void Window::onHScrollPositionChanged(int oldPos, int newPos)
+{
+}
+
+void Window::onMouseWheel(int delta, unsigned int keys, int x, int y)
 {
 }
 
