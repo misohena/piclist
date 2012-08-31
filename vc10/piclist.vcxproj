@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\AppWindow.cpp" />
+    <ClCompile Include="..\src\CommandLine.cpp" />
     <ClCompile Include="..\src\Image.cpp" />
     <ClCompile Include="..\src\Layout.cpp" />
     <ClCompile Include="..\src\main.cpp" />
@@ -19,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\AppWindow.h" />
+    <ClInclude Include="..\src\CommandLine.h" />
     <ClInclude Include="..\src\File.h" />
     <ClInclude Include="..\src\Image.h" />
     <ClInclude Include="..\src\ImageCache.h" />

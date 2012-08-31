@@ -25,7 +25,7 @@ namespace piclist{
 		virtual ~AppWindow();
 
 		bool restoreWindowPlacement();
-		void addPictures(const PictureContainer &pics) { pictures_.insert(pictures_.end(), pics.begin(), pics.end());}
+		void setPictures(const PictureContainer &pics) { pictures_ = pics; updateLayout();}
 		void updateLayout();
 
 	private:
