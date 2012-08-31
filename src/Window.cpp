@@ -97,6 +97,11 @@ LRESULT Window::wndproc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 			onSizing(wparam, r);
 		}
 		break;
+	case WM_HSCROLL:
+		{
+			onHScroll(LOWORD(wparam), HIWORD(wparam));
+		}
+		break;
 	case WM_VSCROLL:
 		{
 			onVScroll(LOWORD(wparam), HIWORD(wparam));
