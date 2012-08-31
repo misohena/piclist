@@ -30,10 +30,20 @@ namespace piclist{
 		void updateWindow();
 		void updateStyle();
 
+		void setCaption(const String &str);
+		void setWindowSize(int width, int height);
+		void setWindowRect(const Rect2i rect);
+
+		bool isMaximized() const;
+		bool isMinimized() const;
+		Rect2i getWindowRect() const;
 		Size2i getClientSize() const;
 
-		void invalidate(void);
+		void invalidate();
 		void scrollWindowContent(int dx, int dy);
+
+		bool backupWindowPlacement(const String &keyname);
+		bool restoreWindowPlacement(const String &keyname);
 
 		// ScrollBar
 
@@ -89,6 +99,7 @@ namespace piclist{
 		virtual void onVScrollPositionChanged(int oldPos, int newPos);
 		virtual void onHScrollPositionChanged(int oldPos, int newPos);
 		virtual void onMouseWheel(int delta, unsigned int keys, int x, int y);
+		virtual void onDestroy();
 
 	};
 

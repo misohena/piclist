@@ -51,7 +51,7 @@ bool Window::create()
 		hwnd_ = NULL;
 		return false; //CreateWindow failed.
 	}
-	//hwnd_ = hwnd; WM_CREATE時にセットされる。
+	//hwnd_ = hwnd; WM_CREATE時にセットされる。でないと、onCreateの中でgetClientRect等を呼び出せない。
 
 	return true;
 }
@@ -114,6 +114,7 @@ LRESULT Window::wndproc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 		onMouseWheel((SHORT)HIWORD(wparam), LOWORD(wparam), LOWORD(lparam), HIWORD(lparam));
 		break;
 	case WM_DESTROY:
+		onDestroy();
 		PostQuitMessage(0);
 		break;
 	default:
@@ -145,6 +146,69 @@ void Window::updateStyle()
 	}
 }
 
+/**
+ * ウィンドウのキャプション文字列を変更します。
+ */
+void Window::setCaption(const String &str)
+{
+	if(hwnd_){
+		::SetWindowText(hwnd_, str.c_str());
+	}
+}
+
+/**
+ * ウィンドウのサイズを変更します。
+ */
+void Window::setWindowSize(int width, int height)
+{
+	if(hwnd_){
+		::SetWindowPos(hwnd_, 0, 0, 0, width, height, SWP_NOZORDER | SWP_NOMOVE);
+	}
+}
+
+/**
+ * ウィンドウの位置とサイズを変更します。
+ */
+void Window::setWindowRect(const Rect2i rect)
+{
+	if(hwnd_){
+		::SetWindowPos(hwnd_, 0, rect.left, rect.top, rect.getWidth(), rect.getHeight(), SWP_NOZORDER);
+	}
+}
+
+/**
+ * 最大化されているかどうかを返します。
+ */
+bool Window::isMaximized() const
+{
+	return hwnd_ ? (::IsZoomed(hwnd_) ? true : false) : false;
+}
+
+/**
+ * 最小化されているかどうかを返します。
+ */
+bool Window::isMinimized() const
+{
+	return hwnd_ ? (::IsIconic(hwnd_) ? true : false) : false;
+}
+
+/**
+ * ウィンドウの矩形を返します。
+ */
+Rect2i Window::getWindowRect() const
+{
+	if(hwnd_){
+		RECT r;
+		if(::GetWindowRect(hwnd_, &r)){
+			return Rect2i(r.left, r.top, r.right, r.bottom);
+		}
+	}
+	return Rect2i(0, 0, 0, 0);
+}
+
+/**
+ * ウィンドウのクライアント領域のサイズを返します。
+ */
 Size2i Window::getClientSize() const
 {
 	RECT cr;
@@ -156,7 +220,10 @@ Size2i Window::getClientSize() const
 	}
 }
 
-void Window::invalidate(void)
+/**
+ * ウィンドウのクライアント領域内を無効化して再描画を促します。
+ */
+void Window::invalidate()
 {
 	if(hwnd_){
 		::InvalidateRect(hwnd_, NULL, TRUE);
@@ -171,6 +238,62 @@ void Window::scrollWindowContent(int dx, int dy)
 	if(hwnd_){
 		::ScrollWindow(hwnd_, dx, dy, NULL, NULL);
 	}
+}
+
+static const TCHAR *REG_VALUE_WINDOW_PLACEMENT = _T("WindowPlacement");
+
+/**
+ * ウィンドウの状態をレジストリに待避します。
+ */
+bool Window::backupWindowPlacement(const String &keyname)
+{
+	if(!hwnd_){
+		return false;
+	}
+	WINDOWPLACEMENT wp;
+	if(!::GetWindowPlacement(hwnd_, &wp)){
+		return false;
+	}
+	if(isMaximized()){
+		wp.flags = WPF_RESTORETOMAXIMIZED;
+	}
+
+	HKEY key;
+	DWORD disposition;
+	const LONG result = ::RegCreateKeyEx(
+		HKEY_CURRENT_USER, keyname.c_str(), NULL, _T(""), REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &key, &disposition);
+	if(result != ERROR_SUCCESS){
+		return false;
+	}
+	::RegSetValueEx(key, REG_VALUE_WINDOW_PLACEMENT, NULL, REG_BINARY, (BYTE *)&wp, sizeof(wp));
+	::RegCloseKey(key);
+	return true;
+}
+
+/**
+ * ウィンドウの状態をレジストリから復元します。
+ */
+bool Window::restoreWindowPlacement(const String &keyname)
+{
+	if(!hwnd_){
+		return false;
+	}
+	HKEY key;
+	LONG result;
+	result = ::RegOpenKeyEx(
+		HKEY_CURRENT_USER, keyname.c_str(), NULL, KEY_ALL_ACCESS, &key);
+	if(result != ERROR_SUCCESS){
+		return false;
+	}
+	WINDOWPLACEMENT wp;
+	DWORD type;
+	DWORD size = sizeof(wp);
+	result = ::RegQueryValueEx(key, REG_VALUE_WINDOW_PLACEMENT, NULL, &type, (BYTE *)&wp, &size);
+	if(!(result == ERROR_SUCCESS && type == REG_BINARY && size == sizeof(wp) && wp.length == sizeof(wp))){
+		return false;
+	}
+	::SetWindowPlacement(hwnd_, &wp);
+	return true;
 }
 
 
@@ -214,6 +337,9 @@ void Window::setScrollPosition(int bar, int value)
 		int minPos, maxPos;
 		if(::GetScrollRange(hwnd_, bar, &minPos, &maxPos)){
 			maxPos -= getScrollVisibleAmount(bar);
+			if(maxPos < minPos){
+				maxPos = minPos;
+			}
 			if(value < minPos){
 				value = minPos;
 			}
@@ -329,9 +455,8 @@ void Window::onScrollDefault(int bar, int action, int pos)
 
 
 // --------------------------------------------------------------------------
-// Default Window Message Handlers.
+// Window Message Handlers.
 // --------------------------------------------------------------------------
-
 
 void Window::onCreate(void){}
 void Window::onPaint(HDC hdc){}
@@ -348,5 +473,6 @@ void Window::onHScroll(int action, int pos)
 void Window::onVScrollPositionChanged(int oldPos, int newPos){}
 void Window::onHScrollPositionChanged(int oldPos, int newPos){}
 void Window::onMouseWheel(int delta, unsigned int keys, int x, int y){}
+void Window::onDestroy(){}
 
 }//namespace piclist
