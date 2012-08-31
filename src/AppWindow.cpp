@@ -20,14 +20,21 @@ AppWindow::~AppWindow()
 
 void AppWindow::onCreate()
 {
-	layout_.update(pictures_, getClientSize());
+	updateLayout();
 }
 
 void AppWindow::onPaint(HDC hdc)
 {
+	const int scrollY = getVScrollPosition();
+
 	const Size2i clientSize = getClientSize();
 
 	Gdiplus::Graphics graphics(hdc);
+
+	Gdiplus::Matrix mat;
+	mat.Translate(0, static_cast<Gdiplus::REAL>(-scrollY));
+	graphics.MultiplyTransform(&mat);
+
 	Gdiplus::SolidBrush textBrush(Gdiplus::Color(255, 0, 0, 0));
 	Gdiplus::FontFamily fontFamily(_T("MS GOTHIC"));
 	Gdiplus::Font font(&fontFamily, static_cast<Gdiplus::REAL>(layout_.getNameHeight()), Gdiplus::FontStyleRegular, Gdiplus::UnitPixel);
@@ -55,6 +62,19 @@ void AppWindow::onPaint(HDC hdc)
 
 void AppWindow::onSizing(int edge, const Rect2i &)
 {
+	updateLayout();
+}
+
+void AppWindow::onVScrollPositionChanged(int oldPos, int newPos)
+{
+	if(oldPos != newPos){
+		scrollWindowContent(0, oldPos - newPos);
+		updateWindow();
+	}
+}
+
+void AppWindow::updateLayout(void)
+{
 	const Size2i clientSize1 = getClientSize();
 	layout_.update(pictures_, clientSize1);
 
@@ -65,6 +85,8 @@ void AppWindow::onSizing(int edge, const Rect2i &)
 
 	setVScrollRange(0, layout_.getPageSize().h);
 	setVScrollVisibleAmount(clientSize2.h);
+	setVScrollLargeAmount(clientSize2.h);
+	setVScrollSmallAmount(layout_.getCellHeight());
 
 	invalidate();
 }

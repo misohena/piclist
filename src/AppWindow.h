@@ -26,6 +26,9 @@ namespace piclist{
 		virtual void onCreate();
 		virtual void onPaint(HDC hdc);
 		virtual void onSizing(int edge, const Rect2i &rect);
+		virtual void onVScrollPositionChanged(int oldPos, int newPos);
+
+		void updateLayout();
 	};
 
 }//namespace piclist

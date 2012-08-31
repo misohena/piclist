@@ -28,6 +28,7 @@ namespace piclist{
 		Rect2i getImageRect(std::size_t index) const;
 		Rect2i getNameRect(std::size_t index) const;
 		int getNameHeight(void) const;
+		int getCellHeight(void) const;
 	};
 
 }//namespace piclist

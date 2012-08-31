@@ -59,4 +59,9 @@ int Layout::getNameHeight(void) const
 	return cellNameHeight_;
 }
 
+int Layout::getCellHeight(void) const
+{
+	return cellHeight_;
+}
+
 }//namespace piclist
