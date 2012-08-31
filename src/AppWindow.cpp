@@ -8,7 +8,6 @@
 namespace piclist{
 
 static const TCHAR * const REGISTRY_KEY = _T("SOFTWARE\\Misohena\\piclist\\");
-static const TCHAR * const WINDOW_SUFFIX = _T(" - piclist");
 
 AppWindow::AppWindow(const String &className, const String &windowName)
 	: Window(className)
@@ -27,7 +26,6 @@ bool AppWindow::restoreWindowPlacement()
 
 void AppWindow::onCreate()
 {
-	setCaption(windowName_ + WINDOW_SUFFIX);
 	updateLayout();
 }
 

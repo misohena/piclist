@@ -135,13 +135,16 @@ class PicListApp
 public:
 	bool init(int nCmdShow)
 	{
+		static const TCHAR * const WINDOW_SUFFIX = _T(" - piclist");
 		static const TCHAR * const WINDOW_CLASS_NAME = _T("PicListWindowClass");
 		static const String windowName = _T("Default");
 
+		const String windowCaption = windowName + WINDOW_SUFFIX;
 		window_.reset(new AppWindow(WINDOW_CLASS_NAME, windowName));
 		if(!window_->create()){
 			return false;
 		}
+		window_->setCaption(windowCaption);
 
 		const std::vector<String> args = splitCmdLineArgs(GetCommandLine());
 		if(args.size() > 1){
