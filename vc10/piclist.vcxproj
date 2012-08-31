@@ -19,6 +19,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\AppWindow.h" />
+    <ClInclude Include="..\src\File.h" />
     <ClInclude Include="..\src\Image.h" />
     <ClInclude Include="..\src\ImageCache.h" />
     <ClInclude Include="..\src\Layout.h" />
