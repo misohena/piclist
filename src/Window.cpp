@@ -8,6 +8,10 @@ namespace piclist{
 Window::Window()
 	: hwnd_(NULL)
 	, className_(_T("PicListWindowClass"))
+	, vScrollSmall_(1)
+	, hScrollSmall_(1)
+	, vScrollLarge_(10)
+	, hScrollLarge_(10)
 {
 }
 
@@ -93,6 +97,11 @@ LRESULT Window::wndproc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 			onSizing(wparam, r);
 		}
 		break;
+	case WM_VSCROLL:
+		{
+			onVScroll(LOWORD(wparam), HIWORD(wparam));
+		}
+		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
@@ -143,6 +152,18 @@ void Window::invalidate(void)
 	}
 }
 
+void Window::scrollWindowContent(int dx, int dy)
+{
+	if(hwnd_){
+		::ScrollWindow(hwnd_, dx, dy, NULL, NULL);
+	}
+}
+
+
+// --------------------------------------------------------------------------
+// ScrollBar
+// --------------------------------------------------------------------------
+
 void Window::setScrollBarVisible(int bar, bool visible)
 {
 	if(hwnd_){
@@ -178,7 +199,24 @@ void Window::setVScrollRange(int minValue, int maxValue)
 void Window::setScrollPosition(int bar, int value)
 {
 	if(hwnd_){
+		const int old = getScrollPosition(bar);
+		int minPos, maxPos;
+		if(::GetScrollRange(hwnd_, bar, &minPos, &maxPos)){
+			if(value < minPos){
+				value = minPos;
+			}
+			if(value > maxPos){
+				value = maxPos;
+			}
+		}
 		::SetScrollPos(hwnd_, bar, value, TRUE);
+
+		if(bar == SB_HORZ){
+			onHScrollPositionChanged(old, value);
+		}
+		else if(bar == SB_VERT){
+			onVScrollPositionChanged(old, value);
+		}
 	}
 }
 
@@ -212,8 +250,86 @@ void Window::setVScrollVisibleAmount(int value)
 	setScrollVisibleAmount(SB_VERT, value);
 }
 
+void Window::scroll(int bar, int delta)
+{
+	setScrollPosition(bar, getVScrollPosition() + delta);
+}
+
+void Window::scrollH(int delta)
+{
+	scroll(SB_HORZ, delta);
+}
+
+void Window::scrollV(int delta)
+{
+	scroll(SB_VERT, delta);
+}
+
+int Window::getScrollPosition(int bar) const
+{
+	if(hwnd_){
+		return ::GetScrollPos(hwnd_, bar);
+	}
+	else{
+		return 0;
+	}
+}
+
+int Window::getHScrollPosition() const
+{
+	return getScrollPosition(SB_HORZ);
+}
+int Window::getVScrollPosition() const
+{
+	return getScrollPosition(SB_VERT);
+}
+
+void Window::onScrollDefault(int bar, int action, int pos)
+{
+	switch(action){
+	case SB_LINEUP:
+		scroll(bar, -getVScrollSmallAmount());
+		break;
+	case SB_LINEDOWN:
+		scroll(bar, getVScrollSmallAmount());
+		break;
+	case SB_PAGEUP:
+		scroll(bar, -getVScrollLargeAmount());
+		break;
+	case SB_PAGEDOWN:
+		scroll(bar, getVScrollLargeAmount());
+		break;
+	case SB_THUMBPOSITION:
+		setScrollPosition(bar, pos);
+		break;
+	case SB_THUMBTRACK:
+		setScrollPosition(bar, pos);
+		break;
+	}
+}
+
+
+// --------------------------------------------------------------------------
+// Default Window Message Handlers.
+// --------------------------------------------------------------------------
+
+
 void Window::onCreate(void){}
 void Window::onPaint(HDC hdc){}
 void Window::onSizing(int edge, const Rect2i &rect){}
+void Window::onVScroll(int action, int pos)
+{
+	onScrollDefault(SB_VERT, action, pos);
+}
+void Window::onHScroll(int action, int pos)
+{
+	onScrollDefault(SB_HORZ, action, pos);
+}
+void Window::onVScrollPositionChanged(int oldPos, int newPos)
+{
+}
+void Window::onHScrollPositionChanged(int oldPos, int newPos)
+{
+}
 
 }//namespace piclist

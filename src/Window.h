@@ -14,6 +14,11 @@ namespace piclist{
 	{
 		HWND hwnd_;
 		String className_;
+
+		int vScrollSmall_;
+		int hScrollSmall_;
+		int vScrollLarge_;
+		int hScrollLarge_;
 	public:
 		Window();
 		virtual ~Window();
@@ -28,6 +33,9 @@ namespace piclist{
 		Size2i getClientSize() const;
 
 		void invalidate(void);
+		void scrollWindowContent(int dx, int dy);
+
+		// ScrollBar
 
 		void setScrollBarVisible(int bar, bool visible);
 		void setHScrollBarVisible(bool visible);
@@ -42,6 +50,25 @@ namespace piclist{
 		void setHScrollVisibleAmount(int value);
 		void setVScrollVisibleAmount(int value);
 
+		void scroll(int bar, int delta);
+		void scrollH(int delta);
+		void scrollV(int delta);
+
+		int getScrollPosition(int bar) const;
+		int getHScrollPosition() const;
+		int getVScrollPosition() const;
+
+		void setVScrollSmallAmount(int v) { vScrollSmall_ = v;}
+		void setHScrollSmallAmount(int v) { hScrollSmall_ = v;}
+		void setVScrollLargeAmount(int v) { vScrollLarge_ = v;}
+		void setHScrollLargeAmount(int v) { hScrollLarge_ = v;}
+
+		int getVScrollSmallAmount() const { return vScrollSmall_;}
+		int getHScrollSmallAmount() const { return hScrollSmall_;}
+		int getVScrollLargeAmount() const { return vScrollLarge_;}
+		int getHScrollLargeAmount() const { return hScrollLarge_;}
+
+		void onScrollDefault(int bar, int action, int pos);
 
 	private:
 		static LRESULT CALLBACK wndprocStatic(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
@@ -51,6 +78,11 @@ namespace piclist{
 		virtual void onCreate(void);
 		virtual void onPaint(HDC hdc);
 		virtual void onSizing(int edge, const Rect2i &rect);
+		virtual void onVScroll(int action, int pos);
+		virtual void onHScroll(int action, int pos);
+		virtual void onVScrollPositionChanged(int oldPos, int newPos);
+		virtual void onHScrollPositionChanged(int oldPos, int newPos);
+
 	};
 
 }//namespace piclist
