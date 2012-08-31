@@ -3,9 +3,9 @@
 namespace piclist{
 
 Layout::Layout()
-	: cellImageWidth_(128)
-	, cellImageHeight_(128)
-	, cellNameHeight_(16)
+	: cellImageWidth_(96)
+	, cellImageHeight_(96)
+	, cellNameHeight_(10)
 	, cellWidth_(cellImageWidth_)
 	, cellHeight_(cellImageHeight_ + cellNameHeight_)
 	, pictureCount_()
