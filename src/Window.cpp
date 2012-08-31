@@ -282,7 +282,6 @@ int Window::getScrollPosition(int bar) const
 		return 0;
 	}
 }
-
 int Window::getHScrollPosition() const
 {
 	return getScrollPosition(SB_HORZ);
@@ -291,6 +290,27 @@ int Window::getVScrollPosition() const
 {
 	return getScrollPosition(SB_VERT);
 }
+
+int Window::getScrollVisibleAmount(int bar) const
+{
+	if(hwnd_){
+		SCROLLINFO si = {sizeof(si)};
+		si.fMask = SIF_PAGE;
+		if(::GetScrollInfo(hwnd_, bar, &si)){
+			return si.nPage;
+		}
+	}
+	return 0;
+}
+int Window::getHScrollVisibleAmount() const
+{
+	return getScrollVisibleAmount(SB_HORZ);
+}
+int Window::getVScrollVisibleAmount() const
+{
+	return getScrollVisibleAmount(SB_VERT);
+}
+
 
 void Window::onScrollDefault(int bar, int action, int pos)
 {

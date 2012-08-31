@@ -58,6 +58,10 @@ namespace piclist{
 		int getHScrollPosition() const;
 		int getVScrollPosition() const;
 
+		int getScrollVisibleAmount(int bar) const;
+		int getHScrollVisibleAmount() const;
+		int getVScrollVisibleAmount() const;
+
 		void setVScrollSmallAmount(int v) { vScrollSmall_ = v;}
 		void setHScrollSmallAmount(int v) { hScrollSmall_ = v;}
 		void setVScrollLargeAmount(int v) { vScrollLarge_ = v;}
