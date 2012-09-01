@@ -1,0 +1,117 @@
+#+TITLE: 画像リスト表示プログラム(piclist)
+#+AUTHOR: AKIYAMA Kouhei
+#+LANGUAGE: ja
+
+* 画像リスト表示プログラム(piclist)
+** 概要
+
+画像ファイルのサムネイルをタイル状に並べて表示するだけのプログラムです。主にコマンドラインで使うことを想定しています。Windows用です。対応している画像形式はGDI+が対応している形式です。
+
+[[file:screenshot.jpg]]
+
+** ダウンロード
+
+[[https://github.com/misohena/piclist/raw/master/release/piclist.zip]]
+
+** 使い方
+
+#+begin_example
+piclist [-w ウィンドウ名] [ファイル名(ワイルドカード)]...
+#+end_example
+
+次の例は、201205で始まるjpgファイルのリストを表示します。
+
+#+begin_example
+piclist 201205*.jpg
+#+end_example
+
+リストを表示するウィンドウにはウィンドウ名と呼ばれる名前を設定することが出来ます。
+
+次の例は、bgという名前のウィンドウを作成し、背景ディレクトリの中にあるjpgファイルを全て表示します。
+
+#+begin_example
+piclist -w bg 背景\*.jpg
+#+end_example
+
+同じ名前のウィンドウがすでに開いていれば、新にウィンドウを作らず、すでに開いているウィンドウの内容を更新します。
+
+上の例の後に次のようにすると、同じウィンドウで東京で始まる背景だけが表示されます。
+
+#+begin_example
+piclist -w bg 背景\東京*.jpg
+#+end_example
+
+ウィンドウの位置・サイズはウィンドウ名毎にレジストリに記録され、次回同じ名前でウィンドウを開いたときに反映されます。
+
+** プログラムの構造
+
+プログラムのソースコードは[[https://github.com/misohena/piclist][Github]]で公開しています。
+
+Visual Studio 2010でビルドしています。出来るだけ他のライブラリを使用しないように作りました。GDI+を使用しています。
+
+- ライブラリ的なもの
+  - String.h :: Stringクラスを定義する。ANSI/UNICODEビルドの差を吸収するため。
+  - Math.h :: 数学的なクラスや関数を定義する。
+  - Window.h :: 汎用的なウィンドウクラスを定義する。必要になるたびに機能を追加しつつ、他のプロジェクトでも使い回せる程度に抽象化している。
+  - File.h :: ファイル操作に関するクラスや関数を定義する。
+- piclist固有なもの
+  - main.cpp :: main関数とアプリケーションクラスを定義する。
+  - CommandLine.h|cpp :: コマンドライン文字列からウィンドウ名や絵のファイル名リストを取り出す。main.cppからだけでなくAppWindowからも使う(他のプロセスから要求されることがあるので)。
+  - Picture.h :: piclistで扱う「絵」についての定義。今のところ絵はファイル名のみを保持する。
+  - Image.h|cpp :: piclistで扱う「画像」についての定義。
+  - ImageCache.h :: 同じファイルの画像を何度も読み込まなくても良いようにするためのしくみ。今のところAppWindowのみが利用する。
+  - AppWindow.h|cpp :: アプリケーションウィンドウ。AppWindowはWindowの派生クラス。その唯一のインスタンスはmain.cppで生成・破棄される。
+  - Layout.h|cpp :: アプリケーションウィンドウ内の表示レイアウト。表示に必要なパラメータを全て保持する。表示内容が変わったりウィンドウサイズが変わったときにAppWindow::updateLayoutを通じて更新される。
+
+#+begin_src plantuml :file piclist_class_overview.png :cmdline -charset UTF-8
+
+PicListApp *--> "1" AppWindow
+
+PicListApp ..> CommandLineParser
+AppWindow ..> CommandLineParser
+
+Window <|-- AppWindow
+AppWindow *--> "1" PictureContainer : 表示対象
+AppWindow *--> "1" Layout
+AppWindow *--> "1" ImageCache
+
+PictureContainer *--> "0..*" Picture
+ImageCache *--> "0..*" Image
+
+class PicListApp {
+  init()
+}
+class CommandLineParser {
+  parse(String)
+  getWindowName():String
+  getPictures():PictureContainer
+}
+class AppWindow {
+  setPictures(pictures:PictureContainer)
+  updateLayout()
+  onPaint()
+}
+class ImageCache {
+  getImage(filepath:String, size:Size2i):Image
+}
+class Layout {
+  update(pictures:PictureContainer, clientSize:Size2i)
+  getPageSize():Size2i
+  getImageRect(index:size_t):Rect2i
+  getNameRect(index:size_t):Rect2i
+}
+class Picture {
+  getFilePath():String
+  getFileNameBase():String
+}
+
+#+end_src
+
+** 改善点
+
+- サムネイルの大きさを変更できるようにする。
+- ファイル名文字の大きさを変更できるようにする。
+- ファイル名文字のフォーマット(拡張子を入れるか等)を変更できるようにする。
+- ウィンドウを最前面固定に出来るようにする。
+- サムネイルのクリックで画像を開けるようにする。
+- サムネイルのクリックでファイル名(の一部)をコピーできるようにする。
