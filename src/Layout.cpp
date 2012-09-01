@@ -50,8 +50,9 @@ Rect2i Layout::getImageRect(std::size_t index) const
 Rect2i Layout::getNameRect(std::size_t index) const
 {
 	const int x = index % columns_ * cellWidth_;
-	const int y = index / columns_ * cellHeight_;
-	return Rect2i(x, y + cellImageHeight_, x + cellWidth_, y + cellNameHeight_);
+	const int y = index / columns_ * cellHeight_ + cellImageHeight_;
+	return Rect2i(x, y, x + cellWidth_, y + cellNameHeight_);
+}
 }
 
 int Layout::getNameHeight(void) const
