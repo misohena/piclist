@@ -65,7 +65,12 @@ void AppWindow::onPaint(HDC hdc)
 			const double scale = min(cellImageRect.getWidth() / srcW, cellImageRect.getHeight() / srcH);
 			const int dstW = static_cast<int>(srcW * scale);
 			const int dstH = static_cast<int>(srcH * scale);
-			graphics.DrawImage(im->getGdiPlusImage(), cellImageRect.left, cellImageRect.top, dstW, dstH);
+			graphics.DrawImage(
+				im->getGdiPlusImage(),
+				cellImageRect.left + (cellImageRect.getWidth() - dstW) / 2,
+				cellImageRect.top + (cellImageRect.getHeight() - dstH) / 2,
+				dstW,
+				dstH);
 		}
 
 		// name.
