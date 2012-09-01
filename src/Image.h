@@ -3,6 +3,7 @@
 
 #include <memory>
 #include "String.h"
+#include "Math.h"
 
 namespace Gdiplus{ class Image;}
 
@@ -16,9 +17,9 @@ namespace piclist{
 	class Image
 	{
 		std::unique_ptr<Gdiplus::Image> im_;
-		explicit Image(const String &filepath);
+		explicit Image(std::unique_ptr<Gdiplus::Image> &&im);
 	public:
-		static ImagePtr load(const String &filepath);
+		static ImagePtr load(const String &filepath, const Size2i &size);
 		int getWidth() const;
 		int getHeight() const;
 		Gdiplus::Image *getGdiPlusImage() const { return im_.get();}

@@ -12,17 +12,25 @@ namespace piclist{
 	 */
 	class ImageCache
 	{
+		Size2i size_;
 		typedef std::map<String, ImagePtr> FileImageMap;
 		FileImageMap fileImageMap_;
 	public:
-		ImagePtr getImage(const String &filepath)
+		ImageCache()
+			: size_()
+		{}
+		ImagePtr getImage(const String &filepath, const Size2i &size)
 		{
+			if(size != size_){
+				fileImageMap_.clear();
+				size_ = size;
+			}
 			///@todo filepath‚ðâ‘ÎƒpƒX‚Ö•ÏŠ·‚·‚éB
 			const FileImageMap::iterator it = fileImageMap_.lower_bound(filepath);
 			if(it != fileImageMap_.end() && !fileImageMap_.key_comp()(filepath, it->first)){
 				return it->second;
 			}
-			const ImagePtr im = Image::load(filepath);
+			const ImagePtr im = Image::load(filepath, size);
 			fileImageMap_.insert(it, FileImageMap::value_type(filepath, im));
 			return im;
 		}

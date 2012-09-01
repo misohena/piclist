@@ -19,6 +19,8 @@ namespace piclist{
 			h = h_;
 		}
 	};
+	inline bool operator==(const Size2i &lhs, const Size2i &rhs){ return lhs.w == rhs.w && lhs.h == rhs.h;}
+	inline bool operator!=(const Size2i &lhs, const Size2i &rhs){ return lhs.w != rhs.w || lhs.h != rhs.h;}
 
 	/**
 	 * 二次元直行座標系における軸に沿った矩形を表すクラスです。

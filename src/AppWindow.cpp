@@ -58,7 +58,7 @@ void AppWindow::onPaint(HDC hdc)
 		const Picture &pic = pictures_[index];
 
 		// image.
-		if(ImagePtr im = imageCache_.getImage(pic.getFilePath())){
+		if(ImagePtr im = imageCache_.getImage(pic.getFilePath(), Size2i(layout_.getImageWidth(), layout_.getImageHeight()))){
 			const double srcW = im->getWidth();
 			const double srcH = im->getHeight();
 			const Rect2i cellImageRect = layout_.getImageRect(index);
