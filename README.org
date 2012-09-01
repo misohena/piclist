@@ -2,18 +2,17 @@
 #+AUTHOR: AKIYAMA Kouhei
 #+LANGUAGE: ja
 
-* 画像リスト表示プログラム(piclist)
-** 概要
+* 概要
 
 画像ファイルのサムネイルをタイル状に並べて表示するだけのプログラムです。主にコマンドラインで使うことを想定しています。Windows用です。対応している画像形式はGDI+が対応している形式です。
 
-[[file:screenshot.jpg]]
+[[https://raw.github.com/misohena/piclist/master/screenshot.jpg]]
 
-** ダウンロード
+* ダウンロード
 
 [[https://github.com/misohena/piclist/raw/master/release/piclist.zip]]
 
-** 使い方
+* 使い方
 
 #+begin_example
 piclist [-w ウィンドウ名] [ファイル名(ワイルドカード)]...
@@ -43,7 +42,7 @@ piclist -w bg 背景\東京*.jpg
 
 ウィンドウの位置・サイズはウィンドウ名毎にレジストリに記録され、次回同じ名前でウィンドウを開いたときに反映されます。
 
-** プログラムの構造
+* プログラムの構造
 
 プログラムのソースコードは[[https://github.com/misohena/piclist][Github]]で公開しています。
 
@@ -63,7 +62,9 @@ Visual Studio 2010でビルドしています。出来るだけ他のライブ�
   - AppWindow.h|cpp :: アプリケーションウィンドウ。AppWindowはWindowの派生クラス。その唯一のインスタンスはmain.cppで生成・破棄される。
   - Layout.h|cpp :: アプリケーションウィンドウ内の表示レイアウト。表示に必要なパラメータを全て保持する。表示内容が変わったりウィンドウサイズが変わったときにAppWindow::updateLayoutを通じて更新される。
 
-#+begin_src plantuml :file piclist_class_overview.png :cmdline -charset UTF-8
+[[https://raw.github.com/misohena/piclist/master/piclist_class_overview.png]]
+
+#+begin_src plantuml :file piclist_class_overview.png :cmdline -charset UTF-8 :exports none
 
 PicListApp *--> "1" AppWindow
 
@@ -107,7 +108,7 @@ class Picture {
 
 #+end_src
 
-** 改善点
+* 改善点
 
 - サムネイルの大きさを変更できるようにする。
 - ファイル名文字の大きさを変更できるようにする。
