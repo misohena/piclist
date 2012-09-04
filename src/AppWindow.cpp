@@ -2,6 +2,7 @@
 #include <tchar.h>
 #include <GdiPlus.h>
 #include "CommandLine.h"
+#include "File.h"
 #include "AppWindow.h"
 
 
@@ -110,10 +111,19 @@ void AppWindow::onMouseWheel(int delta, unsigned int keys, int x, int y)
 
 void AppWindow::onCopyData(HWND srcwnd, ULONG_PTR dwData, DWORD cbData, PVOID lpData)
 {
-	TCHAR *str = (TCHAR *)lpData;
+	const TCHAR * const currentDir = (TCHAR *)lpData;
+	const int lenCurrentDir = lstrlen(currentDir);
+	const TCHAR * const cmdlineStr = currentDir + lenCurrentDir + 1;
+
+	const String currentDirOld = getCurrentDirectory();
+	setCurrentDirectory(currentDir);
+
 	CommandLineParser cmdline;
-	cmdline.parse(str);
+	cmdline.parse(cmdlineStr);
+
 	setPictures(cmdline.getPictures());
+
+	setCurrentDirectory(currentDirOld);
 }
 
 void AppWindow::updateLayout(void)

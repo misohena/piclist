@@ -7,7 +7,7 @@
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
 <meta name="title" content="画像リスト表示プログラム(piclist)"/>
 <meta name="generator" content="Org-mode"/>
-<meta name="generated" content="2012-09-01 12:49:50 "/>
+<meta name="generated" content="2012-09-04 23:17:26 "/>
 <meta name="author" content="AKIYAMA Kouhei"/>
 <meta name="description" content=""/>
 <meta name="keywords" content=""/>
@@ -139,20 +139,24 @@
 <div class="outline-text-2" id="text-3">
 
 
-
-
-
-<pre class="example">piclist [-w ウィンドウ名] [ファイル名(ワイルドカード)]...
+<pre class="example">
+piclist [-w ウィンドウ名] [ファイル名(ワイルドカード)]...
 </pre>
 
 
 <p>
 次の例は、201205で始まるjpgファイルのリストを表示します。
 </p>
+<pre class="example">
+piclist 201205*.jpg
+</pre>
 
 
-
-<pre class="example">piclist 201205*.jpg
+<p>
+複数指定すると、指定した順番で表示します。
+</p>
+<pre class="example">
+piclist 201205*.jpg 201208*.jpg
 </pre>
 
 
@@ -162,10 +166,8 @@
 <p>
 次の例は、bgという名前のウィンドウを作成し、背景ディレクトリの中にあるjpgファイルを全て表示します。
 </p>
-
-
-
-<pre class="example">piclist -w bg 背景\*.jpg
+<pre class="example">
+piclist -w bg 背景\*.jpg
 </pre>
 
 
@@ -175,10 +177,8 @@
 <p>
 上の例の後に次のようにすると、同じウィンドウで東京で始まる背景だけが表示されます。
 </p>
-
-
-
-<pre class="example">piclist -w bg 背景\東京*.jpg
+<pre class="example">
+piclist -w bg 背景\東京*.jpg
 </pre>
 
 
@@ -253,7 +253,11 @@ Visual Studio 2010でビルドしています。出来るだけ他のライブ�
 <ul>
 <li>サムネイルの大きさを変更できるようにする。
 </li>
-<li>ファイル名文字の大きさを変更できるようにする。
+<li>セルとセルとの間の空白を変更できるようにする。桁間と行間。
+</li>
+<li>サムネイルとファイル名との間の空白を変更できるようにする。
+</li>
+<li>ファイル名文字の高さを変更できるようにする。
 </li>
 <li>ファイル名文字のフォーマット(拡張子を入れるか等)を変更できるようにする。
 </li>
@@ -263,6 +267,12 @@ Visual Studio 2010でビルドしています。出来るだけ他のライブ�
 </li>
 <li>サムネイルのクリックでファイル名(の一部)をコピーできるようにする。
 </li>
+<li>改行できるようにする。またはセクション(グループ?)分けできるようにする。セクションヘッダー文字を入れられるようにする。
+</li>
+<li>行の高さを画像によって自動的に計算できるようにする。つまり、サムネイルの高さとして「自動」を設定できるようにする。
+</li>
+<li><del>すでに開いているウィンドウで開くとき、カレントディレクトリが違うため相対パス指定のファイル名が表示されない問題を解消する。</del>
+</li>
 </ul>
 
 </div>
@@ -270,7 +280,7 @@ Visual Studio 2010でビルドしています。出来るだけ他のライブ�
 </div>
 
 <div id="postamble">
-<p class="date">Date: 2012-09-01 12:49:50 </p>
+<p class="date">Date: 2012-09-04 23:17:26 </p>
 <p class="author">Author: AKIYAMA Kouhei</p>
 <p class="creator">Org version 7.8.03 with Emacs version 23</p>
 <a href="http://validator.w3.org/check?uri=referer">Validate XHTML 1.0</a>

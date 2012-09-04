@@ -1,11 +1,30 @@
 #ifndef FILE_H
 #define FILE_H
 
+#include <vector>
 #include <windows.h>
 #include <tchar.h>
 #include "String.h"
 
 namespace piclist{
+	inline String getCurrentDirectory()
+	{
+		const DWORD size = ::GetCurrentDirectory(0, NULL);
+		if(size == 0){
+			return String();
+		}
+		std::vector<TCHAR> buffer(size);
+		const DWORD size2 = ::GetCurrentDirectory(size, &buffer[0]);
+		if(size2 == 0 || size2 >= size){
+			return String();
+		}
+		return &buffer[0];
+	}
+
+	inline bool setCurrentDirectory(const String &dir)
+	{
+		return !!::SetCurrentDirectory(dir.c_str());
+	}
 
 	class FileEnumerator
 	{
