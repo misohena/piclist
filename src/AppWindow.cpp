@@ -139,7 +139,7 @@ void AppWindow::updateLayout(void)
 	setVScrollRange(0, layout_.getPageSize().h);
 	setVScrollVisibleAmount(clientSize2.h);
 	setVScrollLargeAmount(clientSize2.h);
-	setVScrollSmallAmount(layout_.getCellHeight());
+	setVScrollSmallAmount(layout_.getCellStepY());
 
 	invalidate();
 }

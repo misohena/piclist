@@ -16,6 +16,10 @@ namespace piclist{
 		const int cellNameHeight_;
 		const int cellWidth_;
 		const int cellHeight_;
+		const int lineSpace_;
+		const int columnSpace_;
+		const int cellStepX_;
+		const int cellStepY_;
 
 		std::size_t pictureCount_;
 		unsigned int columns_;
@@ -30,7 +34,7 @@ namespace piclist{
 		int getImageWidth() const;
 		int getImageHeight() const;
 		int getNameHeight() const;
-		int getCellHeight() const;
+		int getCellStepY() const;
 	};
 
 }//namespace piclist

@@ -8,6 +8,10 @@ Layout::Layout()
 	, cellNameHeight_(10)
 	, cellWidth_(cellImageWidth_)
 	, cellHeight_(cellImageHeight_ + cellNameHeight_)
+	, lineSpace_(0)
+	, columnSpace_(1)
+	, cellStepX_(cellWidth_ + columnSpace_)
+	, cellStepY_(cellHeight_ + lineSpace_)
 	, pictureCount_()
 	, columns_(1)
 	, pageSize_()
@@ -16,7 +20,7 @@ Layout::Layout()
 void Layout::update(const PictureContainer &pictures, const Size2i &clientSize)
 {
 	pictureCount_ = pictures.size();
-	columns_ = std::max(1, clientSize.w / cellWidth_);
+	columns_ = std::max(1, (clientSize.w + columnSpace_) / cellStepX_);
 	if(pictureCount_ == 0){
 		// 0の場合。
 		pageSize_.set(0, 0);
@@ -24,14 +28,14 @@ void Layout::update(const PictureContainer &pictures, const Size2i &clientSize)
 	else if(pictureCount_ <= columns_){
 		// 1行でおさまる場合。
 		pageSize_.set(
-			pictureCount_ * cellWidth_,
+			pictureCount_ * cellStepX_ - columnSpace_,
 			cellHeight_);
 	}
 	else{
 		// 複数行にわたる場合。
 		pageSize_.set(
-			columns_ * cellWidth_,
-			(pictureCount_ + columns_ - 1) / columns_ * cellHeight_);
+			columns_ * cellStepX_ - columnSpace_,
+			(pictureCount_ + columns_ - 1) / columns_ * cellStepY_ - lineSpace_);
 	}
 }
 
@@ -42,15 +46,15 @@ const Size2i Layout::getPageSize() const
 
 Rect2i Layout::getImageRect(std::size_t index) const
 {
-	const int x = index % columns_ * cellWidth_;
-	const int y = index / columns_ * cellHeight_;
+	const int x = index % columns_ * cellStepX_;
+	const int y = index / columns_ * cellStepY_;
 	return Rect2i(x, y, x + cellImageWidth_, y + cellImageHeight_);
 }
 
 Rect2i Layout::getNameRect(std::size_t index) const
 {
-	const int x = index % columns_ * cellWidth_;
-	const int y = index / columns_ * cellHeight_ + cellImageHeight_;
+	const int x = index % columns_ * cellStepX_;
+	const int y = index / columns_ * cellStepY_ + cellImageHeight_;
 	return Rect2i(x, y, x + cellWidth_, y + cellNameHeight_);
 }
 
@@ -68,9 +72,9 @@ int Layout::getNameHeight(void) const
 	return cellNameHeight_;
 }
 
-int Layout::getCellHeight(void) const
+int Layout::getCellStepY(void) const
 {
-	return cellHeight_;
+	return cellStepY_;
 }
 
 }//namespace piclist
