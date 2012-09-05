@@ -4,6 +4,7 @@
 #include <memory>
 #include <deque>
 #include <cstdlib>
+#include <tchar.h>
 #include "String.h"
 
 namespace piclist{
@@ -28,6 +29,8 @@ namespace piclist{
 			return base;
 		}
 
+		// ソートのため
+
 		class LessFilePath
 		{
 		public:
@@ -36,6 +39,23 @@ namespace piclist{
 				return lhs.getFilePath() < rhs.getFilePath();
 			}
 		};
+
+		// 改行のため
+		///@todo PictureではなくAlbumItemのようなクラスを作るべきかもしれない。
+
+		static TCHAR *getLineBreakFilePath()
+		{
+			return _T("\x1b:br");
+		}
+		static Picture createLineBreak()
+		{
+			return Picture(String());
+		}
+		bool isLineBreak() const
+		{
+			return filepath_.empty();
+		}
+
 	};
 
 	typedef std::deque<Picture> PictureContainer;

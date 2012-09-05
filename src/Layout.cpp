@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "Layout.h"
 
 namespace piclist{
@@ -19,24 +20,61 @@ Layout::Layout()
 
 void Layout::update(const PictureContainer &pictures, const Size2i &clientSize)
 {
+	lines_.clear();
 	pictureCount_ = pictures.size();
 	columns_ = std::max(1, (clientSize.w + columnSpace_) / cellStepX_);
-	if(pictureCount_ == 0){
-		// 0の場合。
-		pageSize_.set(0, 0);
+
+	typedef PictureContainer::const_iterator PicIt;
+
+	class LineDivider
+	{
+		const unsigned int columns_;
+		const PicIt beg_;
+		const PicIt end_;
+		PicIt curr_;
+	public:
+		LineDivider(unsigned int columns, const PicIt &beg, const PicIt &end)
+			: columns_(columns), beg_(beg), end_(end), curr_(beg) {}
+
+		bool isTerminated() const { return curr_ == end_;}
+		const PicIt &getCurrent() const { return curr_;}
+		PicIt getLineEnd()
+		{
+			unsigned int count = 0;
+			for(;;){
+				if(curr_ == end_){
+					return curr_;
+				}
+				if(curr_->isLineBreak()){
+					const PicIt lineEnd = curr_;
+					++curr_;
+					return lineEnd;
+				}
+				if(count++ >= columns_){
+					return curr_;
+				}
+				++curr_;
+			}
+		}
+	};
+
+	LineDivider lineDivider(columns_, pictures.begin(), pictures.end());
+
+	int lineTop = 0;
+	while(!lineDivider.isTerminated()){
+		const PicIt lineBeg = lineDivider.getCurrent();
+		const PicIt lineEnd = lineDivider.getLineEnd();
+
+		lines_.insert(LineContainer::value_type(lineBeg - pictures.begin(), lineTop));
+
+		///@todo 画像の高さがAUTOの場合、行内の最大の画像の高さを求める。
+
+		lineTop += cellStepY_;
 	}
-	else if(pictureCount_ <= columns_){
-		// 1行でおさまる場合。
-		pageSize_.set(
-			pictureCount_ * cellStepX_ - columnSpace_,
-			cellHeight_);
-	}
-	else{
-		// 複数行にわたる場合。
-		pageSize_.set(
-			columns_ * cellStepX_ - columnSpace_,
-			(pictureCount_ + columns_ - 1) / columns_ * cellStepY_ - lineSpace_);
-	}
+
+	pageSize_.set(
+		columns_ * cellStepX_ - columnSpace_,
+		lineTop ? lineTop - lineSpace_ : 0);
 }
 
 const Size2i Layout::getPageSize() const
@@ -44,17 +82,42 @@ const Size2i Layout::getPageSize() const
 	return pageSize_;
 }
 
+std::pair<std::size_t, int> Layout::findLine(std::size_t index) const
+{
+	if(lines_.empty()){
+		return std::pair<std::size_t, int>(0, 0);
+	}
+
+	LineContainer::const_iterator it = lines_.lower_bound(index);
+	if(it == lines_.end()){
+		return *lines_.rbegin();
+	}
+	if(it->first == index){
+		return *it;
+	}
+	if(it == lines_.begin()){
+		return std::pair<std::size_t, int>(0, 0);
+	}
+	--it;
+	return *it;
+}
+
 Rect2i Layout::getImageRect(std::size_t index) const
 {
-	const int x = index % columns_ * cellStepX_;
-	const int y = index / columns_ * cellStepY_;
+	const std::pair<std::size_t, int> line = findLine(index);
+	const int x = (index - line.first) % columns_ * cellStepX_;
+	const int y = (index - line.first) / columns_ * cellStepY_ + line.second;
+
 	return Rect2i(x, y, x + cellImageWidth_, y + cellImageHeight_);
 }
 
 Rect2i Layout::getNameRect(std::size_t index) const
 {
-	const int x = index % columns_ * cellStepX_;
-	const int y = index / columns_ * cellStepY_ + cellImageHeight_;
+	const std::pair<std::size_t, int> line = findLine(index);
+	const int x = (index - line.first) % columns_ * cellStepX_;
+	const int y = (index - line.first) / columns_ * cellStepY_ + line.second
+		+ cellImageHeight_;
+
 	return Rect2i(x, y, x + cellWidth_, y + cellNameHeight_);
 }
 

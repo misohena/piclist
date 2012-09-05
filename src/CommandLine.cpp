@@ -116,6 +116,9 @@ void CommandLineParser::parse(const String::value_type *cmdLineStr)
 						windowName_ = *it;
 					}
 				}
+				else if(arg == _T("-br")){
+					files_.push_back(Picture::getLineBreakFilePath());
+				}
 				else{
 					//unknown
 				}
@@ -131,11 +134,18 @@ PictureContainer CommandLineParser::getPictures() const
 {
 	PictureContainer pictures;
 	for(std::vector<String>::const_iterator it = files_.begin(), itEnd = files_.end(); it != itEnd; ++it){
-		for(FileEnumerator fe(*it); fe.valid(); fe.increment()){
-			pictures.push_back(Picture(fe.getEntryFilePath()));
+		if(*it == Picture::getLineBreakFilePath()){
+			pictures.push_back(Picture::createLineBreak());
+		}
+		else{
+			PictureContainer subPics;
+			for(FileEnumerator fe(*it); fe.valid(); fe.increment()){
+				subPics.push_back(Picture(fe.getEntryFilePath()));
+			}
+			std::sort(subPics.begin(), subPics.end(), Picture::LessFilePath());
+			pictures.insert(pictures.end(), subPics.begin(), subPics.end());
 		}
 	}
-	std::sort(pictures.begin(), pictures.end(), Picture::LessFilePath());
 	return pictures;
 }
 

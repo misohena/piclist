@@ -1,6 +1,7 @@
 #ifndef LAYOUT_H
 #define LAYOUT_H
 
+#include <map>
 #include "Math.h"
 #include "Picture.h"
 
@@ -11,6 +12,9 @@ namespace piclist{
 	 */
 	class Layout
 	{
+	public:
+		static const int IMAGE_HEIGHT_AUTO = -1;
+	private:
 		const int cellImageWidth_;
 		const int cellImageHeight_;
 		const int cellNameHeight_;
@@ -24,6 +28,9 @@ namespace piclist{
 		std::size_t pictureCount_;
 		unsigned int columns_;
 		Size2i pageSize_;
+
+		typedef std::map<std::size_t, int> LineContainer;
+		LineContainer lines_; //pictureインデックス -> Y座標 マップ
 	public:
 		Layout();
 		void update(const PictureContainer &pictures, const Size2i &clientSize);
@@ -35,6 +42,9 @@ namespace piclist{
 		int getImageHeight() const;
 		int getNameHeight() const;
 		int getCellStepY() const;
+	private:
+		std::pair<std::size_t, int> findLine(std::size_t index) const;
+
 	};
 
 }//namespace piclist

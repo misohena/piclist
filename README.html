@@ -7,7 +7,7 @@
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
 <meta name="title" content="画像リスト表示プログラム(piclist)"/>
 <meta name="generator" content="Org-mode"/>
-<meta name="generated" content="2012-09-04 23:17:26 "/>
+<meta name="generated" content="2012-09-05 23:54:25 "/>
 <meta name="author" content="AKIYAMA Kouhei"/>
 <meta name="description" content=""/>
 <meta name="keywords" content=""/>
@@ -140,7 +140,7 @@
 
 
 <pre class="example">
-piclist [-w ウィンドウ名] [ファイル名(ワイルドカード)]...
+piclist [-w ウィンドウ名] [ファイル名(ワイルドカード) | -br]...
 </pre>
 
 
@@ -184,6 +184,12 @@ piclist -w bg 背景\東京*.jpg
 
 <p>
 ウィンドウの位置・サイズはウィンドウ名毎にレジストリに記録され、次回同じ名前でウィンドウを開いたときに反映されます。
+</p>
+<p>
+-brを指定すると改行することが出来ます。次の例は、東京で始まるjpgファイルを並べた後に、改行を行い、その後に岡山で始まるjpgファイルを並べます。
+</p>
+<p>
+:piclist 東京*.jpg -br 岡山*.jpg
 </p>
 </div>
 
@@ -267,7 +273,7 @@ Visual Studio 2010でビルドしています。出来るだけ他のライブ�
 </li>
 <li>サムネイルのクリックでファイル名(の一部)をコピーできるようにする。
 </li>
-<li>改行できるようにする。またはセクション(グループ?)分けできるようにする。セクションヘッダー文字を入れられるようにする。
+<li><del>改行できるようにする。</del> またはセクション(グループ?)分けできるようにする。セクションヘッダー文字を入れられるようにする。
 </li>
 <li>行の高さを画像によって自動的に計算できるようにする。つまり、サムネイルの高さとして「自動」を設定できるようにする。
 </li>
@@ -280,7 +286,7 @@ Visual Studio 2010でビルドしています。出来るだけ他のライブ�
 </div>
 
 <div id="postamble">
-<p class="date">Date: 2012-09-04 23:17:26 </p>
+<p class="date">Date: 2012-09-05 23:54:25 </p>
 <p class="author">Author: AKIYAMA Kouhei</p>
 <p class="creator">Org version 7.8.03 with Emacs version 23</p>
 <a href="http://validator.w3.org/check?uri=referer">Validate XHTML 1.0</a>

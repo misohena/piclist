@@ -58,6 +58,10 @@ void AppWindow::onPaint(HDC hdc)
 	for(std::size_t index = 0; index < pictureCount; ++index){
 		const Picture &pic = pictures_[index];
 
+		if(pic.isLineBreak()){
+			continue;
+		}
+
 		// image.
 		if(ImagePtr im = imageCache_.getImage(pic.getFilePath(), Size2i(layout_.getImageWidth(), layout_.getImageHeight()))){
 			const double srcW = im->getWidth();
