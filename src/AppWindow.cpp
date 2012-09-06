@@ -3,6 +3,7 @@
 #include <GdiPlus.h>
 #include "CommandLine.h"
 #include "File.h"
+#include "resource.h"
 #include "AppWindow.h"
 
 
@@ -14,6 +15,7 @@ AppWindow::AppWindow(const String &className, const String &windowName)
 	: Window(className)
 	, windowName_(windowName)
 {
+	menuMainPopup_.load(IDR_MENU_MAINPOPUP);
 }
 
 AppWindow::~AppWindow()
@@ -111,6 +113,24 @@ void AppWindow::onVScrollPositionChanged(int oldPos, int newPos)
 void AppWindow::onMouseWheel(int delta, unsigned int keys, int x, int y)
 {
 	scrollV(-100 * delta/WHEEL_DELTA);
+}
+
+void AppWindow::onRButtonUp(unsigned int keys, int x, int y)
+{
+	const Point2i screenPt = clientToScreen(Point2i(x, y));
+	menuMainPopup_.popupSubMenu(0, screenPt.x, screenPt.y, getWindowHandle());
+}
+
+void AppWindow::onCommand(int notificationCode, int id, HWND hWndControl)
+{
+	switch(id){
+	case ID_MAINPOPUP_TOPMOST:
+		//toggleTopMostStyle();
+		break;
+	case ID_MAINPOPUP_DUP_WINDOW:
+		//duplicateWindow();
+		break;
+	}
 }
 
 void AppWindow::onCopyData(HWND srcwnd, ULONG_PTR dwData, DWORD cbData, PVOID lpData)

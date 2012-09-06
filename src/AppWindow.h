@@ -5,6 +5,7 @@
 #include "Album.h"
 #include "ImageCache.h"
 #include "Layout.h"
+#include "Menu.h"
 
 namespace piclist{
 
@@ -19,6 +20,8 @@ namespace piclist{
 		AlbumItemContainer albumItems_;
 		ImageCache imageCache_;
 		Layout layout_;
+
+		Menu menuMainPopup_;
 
 	public:
 		AppWindow(const String &className, const String &windowName);
@@ -36,6 +39,8 @@ namespace piclist{
 		virtual void onSize(int cause, int newClientWidth, int newClientHeight);
 		virtual void onVScrollPositionChanged(int oldPos, int newPos);
 		virtual void onMouseWheel(int delta, unsigned int keys, int x, int y);
+		virtual void onRButtonUp(unsigned int keys, int x, int y);
+		virtual void onCommand(int notificationCode, int id, HWND hWndControl);
 		virtual void onCopyData(HWND srcwnd, ULONG_PTR dwData, DWORD cbData, PVOID lpData);
 
 	};

@@ -17,6 +17,7 @@
     <ClCompile Include="..\src\Image.cpp" />
     <ClCompile Include="..\src\Layout.cpp" />
     <ClCompile Include="..\src\main.cpp" />
+    <ClCompile Include="..\src\Menu.cpp" />
     <ClCompile Include="..\src\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -28,8 +29,14 @@
     <ClInclude Include="..\src\Layout.h" />
     <ClInclude Include="..\src\Math.h" />
     <ClInclude Include="..\src\Album.h" />
+    <ClInclude Include="..\src\Menu.h" />
+    <ClInclude Include="..\src\resource.h" />
     <ClInclude Include="..\src\String.h" />
     <ClInclude Include="..\src\Window.h" />
+    <ClInclude Include="..\resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\src\piclist.rc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{DC9B2C9D-0A01-4F85-BAD1-ED076C3A59CE}</ProjectGuid>

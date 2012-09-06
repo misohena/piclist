@@ -24,7 +24,7 @@ namespace piclist{
 		virtual ~Window();
 		bool create();
 
-		//HWND getWindowHandle() const { return hwnd_;}
+		HWND getWindowHandle() const { return hwnd_;}
 
 		void showWindow(int nCmdShow);
 		void updateWindow();
