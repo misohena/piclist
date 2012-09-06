@@ -18,6 +18,11 @@ void Menu::load(int resourceId)
 	reset(::LoadMenu(::GetModuleHandle(NULL), MAKEINTRESOURCE(resourceId)), true);
 }
 
+void Menu::setSubMenu(const Menu &menu, int nPos)
+{
+	reset(::GetSubMenu(menu.hMenu_, nPos), false);
+}
+
 void Menu::reset(HMENU hMenu, bool owner)
 {
 	if(owner_ && hMenu_){
@@ -27,13 +32,17 @@ void Menu::reset(HMENU hMenu, bool owner)
 	owner_ = hMenu && owner;
 }
 
-void Menu::popupSubMenu(int nPos, int x, int y, HWND hParent)
+void Menu::checkItem(int id, bool b)
 {
-	if(!hMenu_){
-		return;
+	if(hMenu_){
+		::CheckMenuItem(hMenu_, id, b ? MF_CHECKED : 0);
 	}
-	if(HMENU hSubMenu = ::GetSubMenu(hMenu_, 0)){
-		::TrackPopupMenu(hSubMenu, 0, x, y, 0, hParent, NULL);
+}
+
+void Menu::popupMenu(int x, int y, HWND hParent)
+{
+	if(hMenu_){
+		::TrackPopupMenu(hMenu_, 0, x, y, 0, hParent, NULL);
 	}
 }
 

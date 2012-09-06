@@ -163,7 +163,12 @@ void AppWindow::onMouseWheel(int delta, unsigned int keys, int x, int y)
 void AppWindow::onRButtonUp(unsigned int keys, int x, int y)
 {
 	const Point2i screenPt = clientToScreen(Point2i(x, y));
-	menuMainPopup_.popupSubMenu(0, screenPt.x, screenPt.y, getWindowHandle());
+
+	Menu sub;
+	sub.setSubMenu(menuMainPopup_, 0);
+
+	sub.checkItem(ID_MAINPOPUP_TOPMOST, isZOrderTopMost());
+	sub.popupMenu(screenPt.x, screenPt.y, getWindowHandle());
 }
 
 void AppWindow::onCopyData(HWND srcwnd, ULONG_PTR dwData, DWORD cbData, PVOID lpData)
