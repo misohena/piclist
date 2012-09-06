@@ -459,6 +459,21 @@ LRESULT Window::wndproc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 	case WM_MOUSEWHEEL:
 		onMouseWheel((SHORT)HIWORD(wparam), LOWORD(wparam), LOWORD(lparam), HIWORD(lparam));
 		break;
+	case WM_LBUTTONDOWN:
+		onLButtonDown(wparam, LOWORD(lparam), HIWORD(lparam));
+		break;
+	case WM_LBUTTONUP:
+		onLButtonUp(wparam, LOWORD(lparam), HIWORD(lparam));
+		break;
+	case WM_RBUTTONDOWN:
+		onRButtonDown(wparam, LOWORD(lparam), HIWORD(lparam));
+		break;
+	case WM_RBUTTONUP:
+		onRButtonUp(wparam, LOWORD(lparam), HIWORD(lparam));
+		break;
+	case WM_COMMAND:
+		onCommand(HIWORD(wparam), LOWORD(wparam), (HWND)lparam);
+		break;
 	case WM_COPYDATA:
 		{
 			COPYDATASTRUCT *cd = (COPYDATASTRUCT *)lparam;
@@ -490,6 +505,11 @@ void Window::onHScroll(int action, int pos)
 void Window::onVScrollPositionChanged(int oldPos, int newPos){}
 void Window::onHScrollPositionChanged(int oldPos, int newPos){}
 void Window::onMouseWheel(int delta, unsigned int keys, int x, int y){}
+void Window::onLButtonDown(unsigned int keys, int x, int y){}
+void Window::onLButtonUp(unsigned int keys, int x, int y){}
+void Window::onRButtonDown(unsigned int keys, int x, int y){}
+void Window::onRButtonUp(unsigned int keys, int x, int y){}
+void Window::onCommand(int notificationCode, int id, HWND hWndControl){}
 void Window::onCopyData(HWND srcwnd, ULONG_PTR dwData, DWORD cbData, PVOID lpData){}
 void Window::onDestroy(){}
 
