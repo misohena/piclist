@@ -27,13 +27,6 @@ AppWindow::~AppWindow()
 {
 }
 
-/**
- * アプリケーションウィンドウのクラス名定数を返します。
- */
-const TCHAR *AppWindow::getAppWindowClassName()
-{
-	return APPWINDOW_CLASS_NAME;
-}
 
 /**
  * アプリケーションウィンドウのキャプション名を作成します。
@@ -43,19 +36,40 @@ String AppWindow::makeWindowCaption(const String &windowName)
 	return windowName + APPWINDOW_SUFFIX;
 }
 
+
 /**
- * ウィンドウ名からすでに開いているアプリケーションウィンドウを探します。
+ * ウィンドウの配置をレジストリから読み取り、復元します。
  */
-HWND AppWindow::findWindowByWindowName(const String &windowName)
-{
-	return ::FindWindow(AppWindow::getAppWindowClassName(), makeWindowCaption(windowName).c_str());
-}
-
-
 bool AppWindow::restoreWindowPlacement()
 {
 	return Window::restoreWindowPlacement(REGISTRY_KEY + windowName_);
 }
+
+void AppWindow::setAlbum(const AlbumItemContainer &items)
+{
+	albumItems_ = items;
+	updateLayout();
+}
+
+void AppWindow::updateLayout(void)
+{
+	const Size2i clientSize1 = getClientSize();
+	layout_.update(albumItems_, clientSize1);
+
+	setVScrollBarVisible(layout_.getPageSize().h > clientSize1.h);
+
+	const Size2i clientSize2 = getClientSize();
+	layout_.update(albumItems_, clientSize2);
+
+	setVScrollRange(0, layout_.getPageSize().h);
+	setVScrollVisibleAmount(clientSize2.h);
+	setVScrollLargeAmount(clientSize2.h);
+	setVScrollSmallAmount(layout_.getCellStepY());
+
+	invalidate();
+}
+
+// Window Message Handlers
 
 void AppWindow::onCreate()
 {
@@ -152,6 +166,11 @@ void AppWindow::onRButtonUp(unsigned int keys, int x, int y)
 	menuMainPopup_.popupSubMenu(0, screenPt.x, screenPt.y, getWindowHandle());
 }
 
+void AppWindow::onCopyData(HWND srcwnd, ULONG_PTR dwData, DWORD cbData, PVOID lpData)
+{
+	receiveInterProcessCommand(dwData, cbData, static_cast<unsigned char *>(lpData));
+}
+
 void AppWindow::onCommand(int notificationCode, int id, HWND hWndControl)
 {
 	switch(id){
@@ -185,6 +204,37 @@ void AppWindow::onCommand(int notificationCode, int id, HWND hWndControl)
 }
 
 /**
+ * 現在のウィンドウの内容と同じウィンドウを新しく作成します。
+ */
+void AppWindow::duplicateWindow()
+{
+	String newWindowName;
+	for(int i = 0; i < 100; ++i){
+		newWindowName = windowName_ + _T("のコピー");
+		if(i){
+			newWindowName += std::to_wstring(static_cast<long long>(i));
+		}
+		if(!findWindowByWindowName(newWindowName)){
+			break;
+		}
+	}
+
+	ValueInputDialog dlg(_T("複製先のウィンドウ名を入力してください。"), newWindowName);
+	if(dlg.doModal(getWindowHandle())){
+		newWindowName = dlg.getResultString();
+
+		if(HWND hwnd = findWindowByWindowName(newWindowName)){
+			if(::MessageBox(getWindowHandle(), _T("そのウィンドウ名を持つウィンドウはすでに存在します。そのウィンドウの内容を更新しますか？"), _T("確認"), MB_OKCANCEL) == IDOK){
+				sendAlbum(hwnd, albumItems_);
+			}
+		}
+		else if(HWND hwnd = openNewWindow(newWindowName)){
+			sendAlbum(hwnd, albumItems_);
+		}
+	}
+}
+
+/**
  * ユーザーからレイアウトに関する値を受け付けて、レイアウトを更新します。
  */
 void AppWindow::inputLayoutParam(Layout::LayoutParamType lpt)
@@ -196,15 +246,60 @@ void AppWindow::inputLayoutParam(Layout::LayoutParamType lpt)
 	}
 }
 
-void AppWindow::onCopyData(HWND srcwnd, ULONG_PTR dwData, DWORD cbData, PVOID lpData)
+/**
+ * 指定されたウィンドウ名のウィンドウを新しく作成します。
+ */
+HWND AppWindow::openNewWindow(const String &windowName)
 {
-	switch(dwData){
-	case 0: receiveCommandLine(cbData, reinterpret_cast<unsigned char *>(lpData)); break;
-	case 1: receiveAlbum(cbData, reinterpret_cast<unsigned char *>(lpData)); break;
+	TCHAR exepath[MAX_PATH];
+	::GetModuleFileName(NULL, exepath, MAX_PATH);
+
+	const String cmdline = String(exepath) + _T(" -w ") + windowName;
+	STARTUPINFO si = {sizeof(si)};
+	PROCESS_INFORMATION pi = {};
+	if(!::CreateProcess(exepath, const_cast<TCHAR *>(cmdline.c_str()), NULL, NULL, FALSE, NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi)){
+		return NULL;
+	}
+	::CloseHandle(pi.hThread);
+	::CloseHandle(pi.hProcess);
+
+	for(int i = 0; i < 10; ++i){
+		::Sleep(200);
+		if(HWND hwnd = findWindowByWindowName(windowName)){
+			return hwnd;
+		}
+	}
+
+	return NULL;
+}
+
+
+// ------------------------------------------------------------------
+// プロセス間コマンド処理
+// ------------------------------------------------------------------
+
+/**
+ * ウィンドウ名からすでに開いているアプリケーションウィンドウを探します。
+ */
+HWND AppWindow::findWindowByWindowName(const String &windowName)
+{
+	return ::FindWindow(APPWINDOW_CLASS_NAME, makeWindowCaption(windowName).c_str());
+}
+/**
+ * プロセス間コマンドを受け取ります。
+ */
+void AppWindow::receiveInterProcessCommand(unsigned int code, unsigned int cbData, unsigned char *lpData)
+{
+	switch(code){
+	case IPC_CMDLINE: receiveCommandLine(cbData, reinterpret_cast<unsigned char *>(lpData)); break;
+	case IPC_ALBUM: receiveAlbum(cbData, reinterpret_cast<unsigned char *>(lpData)); break;
 	}
 }
 
-void AppWindow::sendToOtherWindow(HWND dstWnd, unsigned int code, std::vector<unsigned char> &bytes)
+/**
+ * プロセス間コマンドを送信します。
+ */
+void AppWindow::sendInterProcessCommand(HWND dstWnd, InterProcessCommand code, std::vector<unsigned char> &bytes)
 {
 	::COPYDATASTRUCT cds;
 	cds.dwData = code;
@@ -213,14 +308,20 @@ void AppWindow::sendToOtherWindow(HWND dstWnd, unsigned int code, std::vector<un
 	::SendMessage(dstWnd, WM_COPYDATA, NULL, (LPARAM)&cds);
 }
 
+/**
+ * ターゲットウィンドウへコマンドラインを転送します。
+ */
 void AppWindow::sendCommandLine(HWND dstWnd, const String &currentDir, const String &cmdlineStr)
 {
 	VectorOutputStream os;
 	os.writeString(currentDir);
 	os.writeString(cmdlineStr);
-	sendToOtherWindow(dstWnd, 0, os.getBuffer());
+	sendInterProcessCommand(dstWnd, IPC_CMDLINE, os.getBuffer());
 }
 
+/**
+ * コマンドラインを受け取ります。
+ */
 void AppWindow::receiveCommandLine(unsigned int cbData, unsigned char *lpData)
 {
 	MemoryInputStream is(lpData, lpData + cbData);
@@ -236,6 +337,9 @@ void AppWindow::receiveCommandLine(unsigned int cbData, unsigned char *lpData)
 	}
 }
 
+/**
+ * アルバムデータを送ります。
+ */
 void AppWindow::sendAlbum(HWND dstWnd, const AlbumItemContainer &albumItems)
 {
 	VectorOutputStream os;
@@ -258,9 +362,12 @@ void AppWindow::sendAlbum(HWND dstWnd, const AlbumItemContainer &albumItems)
 		}
 	}
 
-	sendToOtherWindow(dstWnd, 1, os.getBuffer());
+	sendInterProcessCommand(dstWnd, IPC_ALBUM, os.getBuffer());
 }
 
+/**
+ * アルバムデータを受け取ります。
+ */
 void AppWindow::receiveAlbum(unsigned int cbData, unsigned char *lpData)
 {
 	MemoryInputStream is(lpData, lpData + cbData);
@@ -293,59 +400,5 @@ void AppWindow::receiveAlbum(unsigned int cbData, unsigned char *lpData)
 	setAlbum(albumItems);
 }
 
-HWND AppWindow::openNewWindow(const String &windowName)
-{
-	TCHAR exepath[MAX_PATH];
-	::GetModuleFileName(NULL, exepath, MAX_PATH);
-
-	const String cmdline = String(exepath) + _T(" -w ") + windowName;
-	STARTUPINFO si = {sizeof(si)};
-	PROCESS_INFORMATION pi = {};
-	if(!::CreateProcess(exepath, const_cast<TCHAR *>(cmdline.c_str()), NULL, NULL, FALSE, NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi)){
-		return NULL;
-	}
-	::CloseHandle(pi.hThread);
-	::CloseHandle(pi.hProcess);
-
-	for(int i = 0; i < 10; ++i){
-		::Sleep(200);
-		if(HWND hwnd = findWindowByWindowName(windowName)){
-			return hwnd;
-		}
-	}
-
-	return NULL;
-}
-
-void AppWindow::duplicateWindow()
-{
-	const String newWindowName = windowName_ + _T("のコピー");
-	if(HWND hwnd = findWindowByWindowName(newWindowName)){
-		if(::MessageBox(getWindowHandle(), _T("ウィンドウ名はすでに存在します。そのウィンドウへ複製しますか？"), _T("確認"), MB_OKCANCEL) == IDOK){
-			sendAlbum(hwnd, albumItems_);
-		}
-	}
-	else if(HWND hwnd = openNewWindow(newWindowName)){
-		sendAlbum(hwnd, albumItems_);
-	}
-}
-
-void AppWindow::updateLayout(void)
-{
-	const Size2i clientSize1 = getClientSize();
-	layout_.update(albumItems_, clientSize1);
-
-	setVScrollBarVisible(layout_.getPageSize().h > clientSize1.h);
-
-	const Size2i clientSize2 = getClientSize();
-	layout_.update(albumItems_, clientSize2);
-
-	setVScrollRange(0, layout_.getPageSize().h);
-	setVScrollVisibleAmount(clientSize2.h);
-	setVScrollLargeAmount(clientSize2.h);
-	setVScrollSmallAmount(layout_.getCellStepY());
-
-	invalidate();
-}
 
 }//namespace piclist

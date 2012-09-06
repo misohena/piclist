@@ -22,30 +22,15 @@ namespace piclist{
 		Layout layout_;
 
 		Menu menuMainPopup_;
-
 	public:
 		AppWindow(const String &windowName);
 		virtual ~AppWindow();
 
 		bool restoreWindowPlacement();
-		void setAlbum(const AlbumItemContainer &items) { albumItems_ = items; updateLayout();}
+		void setAlbum(const AlbumItemContainer &items);
 		void updateLayout();
 
-		static const TCHAR * getAppWindowClassName();
-		static String makeWindowCaption(const String &windowName);
-		static HWND findWindowByWindowName(const String &windowName);
-
-		static void sendToOtherWindow(HWND dstWnd, unsigned int code, std::vector<unsigned char> &bytes);
-		static void sendCommandLine(HWND dstWnd, const String &currentDir, const String &cmdlineStr);
-		void receiveCommandLine(unsigned int cbData, unsigned char *lpData);
-		static void sendAlbum(HWND dstWnd, const AlbumItemContainer &albumItems);
-		void receiveAlbum(unsigned int cbData, unsigned char *lpData);
-
-		static HWND openNewWindow(const String &windowName);
-
-		void duplicateWindow();
-
-
+		// ウィンドウメッセージ処理
 	private:
 		virtual void onCreate();
 		virtual void onDestroy();
@@ -55,10 +40,31 @@ namespace piclist{
 		virtual void onVScrollPositionChanged(int oldPos, int newPos);
 		virtual void onMouseWheel(int delta, unsigned int keys, int x, int y);
 		virtual void onRButtonUp(unsigned int keys, int x, int y);
-		virtual void onCommand(int notificationCode, int id, HWND hWndControl);
 		virtual void onCopyData(HWND srcwnd, ULONG_PTR dwData, DWORD cbData, PVOID lpData);
+		virtual void onCommand(int notificationCode, int id, HWND hWndControl);
 
+	private:
+		static String makeWindowCaption(const String &windowName);
+		void duplicateWindow();
 		void inputLayoutParam(Layout::LayoutParamType lpt);
+		static HWND openNewWindow(const String &windowName);
+
+		// プロセス間コマンド処理
+	private:
+		enum InterProcessCommand {
+			IPC_CMDLINE,
+			IPC_ALBUM,
+		};
+	public:
+		static HWND findWindowByWindowName(const String &windowName);
+		static void sendCommandLine(HWND dstWnd, const String &currentDir, const String &cmdlineStr);
+	private:
+		static void sendAlbum(HWND dstWnd, const AlbumItemContainer &albumItems);
+		static void sendInterProcessCommand(HWND dstWnd, InterProcessCommand code, std::vector<unsigned char> &bytes);
+		void receiveInterProcessCommand(unsigned int code, unsigned int cbData, unsigned char *lpData);
+		void receiveCommandLine(unsigned int cbData, unsigned char *lpData);
+		void receiveAlbum(unsigned int cbData, unsigned char *lpData);
+
 	};
 
 }//namespace piclist
