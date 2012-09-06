@@ -5,6 +5,7 @@
 #include "File.h"
 #include "resource.h"
 #include "AppWindow.h"
+#include "ValueInputDialog.h"
 
 
 namespace piclist{
@@ -135,6 +136,33 @@ void AppWindow::onCommand(int notificationCode, int id, HWND hWndControl)
 	case ID_MAINPOPUP_DUP_WINDOW:
 		//duplicateWindow();
 		break;
+	case ID_MAINPOPUP_IMAGE_WIDTH:
+		inputLayoutParam(Layout::LP_IMAGE_WIDTH);
+		break;
+	case ID_MAINPOPUP_IMAGE_HEIGHT:
+		inputLayoutParam(Layout::LP_IMAGE_HEIGHT);
+		break;
+	case ID_MAINPOPUP_NAME_HEIGHT:
+		inputLayoutParam(Layout::LP_NAME_HEIGHT);
+		break;
+	case ID_MAINPOPUP_COLUMN_SPACE:
+		inputLayoutParam(Layout::LP_COLUMN_SPACE);
+		break;
+	case ID_MAINPOPUP_LINE_SPACE:
+		inputLayoutParam(Layout::LP_LINE_SPACE);
+		break;
+	}
+}
+
+/**
+ * ユーザーからレイアウトに関する値を受け付けて、レイアウトを更新します。
+ */
+void AppWindow::inputLayoutParam(Layout::LayoutParamType lpt)
+{
+	ValueInputDialog dlg(Layout::getLayoutParamName(lpt) + _T("を入力してください。"), layout_.getLayoutParam(lpt));
+	if(dlg.doModal(getWindowHandle())){
+		layout_.setLayoutParam(lpt, dlg.getResultInt());
+		updateLayout();
 	}
 }
 

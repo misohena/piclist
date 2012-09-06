@@ -14,16 +14,24 @@ namespace piclist{
 	{
 	public:
 		static const int IMAGE_HEIGHT_AUTO = -1;
+		enum LayoutParamType
+		{
+			LP_IMAGE_WIDTH,
+			LP_IMAGE_HEIGHT,
+			LP_NAME_HEIGHT,
+			LP_COLUMN_SPACE,
+			LP_LINE_SPACE
+		};
 	private:
-		const int cellImageWidth_;
-		const int cellImageHeight_;
-		const int cellNameHeight_;
-		const int cellWidth_;
-		const int cellHeight_;
-		const int lineSpace_;
-		const int columnSpace_;
-		const int cellStepX_;
-		const int cellStepY_;
+		int imageWidth_;
+		int imageHeight_;
+		int nameHeight_;
+		int lineSpace_;
+		int columnSpace_;
+		int cellWidth_;
+		int cellHeight_;
+		int cellStepX_;
+		int cellStepY_;
 
 		std::size_t itemCount_;
 		unsigned int columns_;
@@ -42,7 +50,12 @@ namespace piclist{
 		int getImageHeight() const;
 		int getNameHeight() const;
 		int getCellStepY() const;
+
+		static String getLayoutParamName(LayoutParamType lpt);
+		int getLayoutParam(LayoutParamType lpt);
+		void setLayoutParam(LayoutParamType lpt, int value);
 	private:
+		void updateCellLayout();
 		std::pair<std::size_t, int> findLine(std::size_t index) const;
 
 	};

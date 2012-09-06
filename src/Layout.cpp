@@ -4,22 +4,30 @@
 namespace piclist{
 
 Layout::Layout()
-	: cellImageWidth_(96)
-	, cellImageHeight_(96)
-	, cellNameHeight_(10)
-	, cellWidth_(cellImageWidth_)
-	, cellHeight_(cellImageHeight_ + cellNameHeight_)
+	: imageWidth_(96)
+	, imageHeight_(96)
+	, nameHeight_(10)
 	, lineSpace_(0)
 	, columnSpace_(1)
-	, cellStepX_(cellWidth_ + columnSpace_)
-	, cellStepY_(cellHeight_ + lineSpace_)
 	, itemCount_()
 	, columns_(1)
 	, pageSize_()
-{}
+{
+	updateCellLayout();
+}
+
+void Layout::updateCellLayout()
+{
+	cellWidth_ = imageWidth_;
+	cellHeight_ = imageHeight_ + nameHeight_;
+	cellStepX_ = cellWidth_ + columnSpace_;
+	cellStepY_ = cellHeight_ + lineSpace_;
+}
 
 void Layout::update(const AlbumItemContainer &items, const Size2i &clientSize)
 {
+	updateCellLayout();
+
 	lines_.clear();
 	itemCount_ = items.size();
 	columns_ = std::max(1, (clientSize.w + columnSpace_) / cellStepX_);
@@ -108,7 +116,7 @@ Rect2i Layout::getImageRect(std::size_t index) const
 	const int x = (index - line.first) % columns_ * cellStepX_;
 	const int y = (index - line.first) / columns_ * cellStepY_ + line.second;
 
-	return Rect2i(x, y, x + cellImageWidth_, y + cellImageHeight_);
+	return Rect2i(x, y, x + imageWidth_, y + imageHeight_);
 }
 
 Rect2i Layout::getNameRect(std::size_t index) const
@@ -116,28 +124,67 @@ Rect2i Layout::getNameRect(std::size_t index) const
 	const std::pair<std::size_t, int> line = findLine(index);
 	const int x = (index - line.first) % columns_ * cellStepX_;
 	const int y = (index - line.first) / columns_ * cellStepY_ + line.second
-		+ cellImageHeight_;
+		+ imageHeight_;
 
-	return Rect2i(x, y, x + cellWidth_, y + cellNameHeight_);
+	return Rect2i(x, y, x + cellWidth_, y + nameHeight_);
 }
 
 int Layout::getImageWidth() const
 {
-	return cellImageWidth_;
+	return imageWidth_;
 }
 int Layout::getImageHeight() const
 {
-	return cellImageHeight_;
+	return imageHeight_;
 }
 
 int Layout::getNameHeight(void) const
 {
-	return cellNameHeight_;
+	return nameHeight_;
 }
 
 int Layout::getCellStepY(void) const
 {
 	return cellStepY_;
 }
+
+
+String Layout::getLayoutParamName(LayoutParamType lpt)
+{
+	switch(lpt){
+	case LP_IMAGE_WIDTH: return STRING_LIT("画像の幅");
+	case LP_IMAGE_HEIGHT: return STRING_LIT("画像の高さ");
+	case LP_NAME_HEIGHT: return STRING_LIT("ファイル名の高さ");
+	case LP_COLUMN_SPACE: return STRING_LIT("桁間スペース");
+	case LP_LINE_SPACE: return STRING_LIT("行間スペース");
+	default: return String();
+	}
+}
+
+int Layout::getLayoutParam(LayoutParamType lpt)
+{
+	switch(lpt){
+	case LP_IMAGE_WIDTH: return imageWidth_;
+	case LP_IMAGE_HEIGHT: return imageHeight_;
+	case LP_NAME_HEIGHT: return nameHeight_;
+	case LP_COLUMN_SPACE: return columnSpace_;
+	case LP_LINE_SPACE: return lineSpace_;
+	default: return 0;
+	}
+}
+
+void Layout::setLayoutParam(LayoutParamType lpt, int value)
+{
+	switch(lpt){
+	case LP_IMAGE_WIDTH: imageWidth_ = value; break;
+	case LP_IMAGE_HEIGHT: imageHeight_ = value; break;
+	case LP_NAME_HEIGHT: nameHeight_ = value; break;
+	case LP_COLUMN_SPACE: columnSpace_ = value; break;
+	case LP_LINE_SPACE: lineSpace_ = value; break;
+	}
+}
+
+
+
 
 }//namespace piclist

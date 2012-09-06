@@ -43,6 +43,7 @@ namespace piclist{
 		virtual void onCommand(int notificationCode, int id, HWND hWndControl);
 		virtual void onCopyData(HWND srcwnd, ULONG_PTR dwData, DWORD cbData, PVOID lpData);
 
+		void inputLayoutParam(Layout::LayoutParamType lpt);
 	};
 
 }//namespace piclist
