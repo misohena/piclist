@@ -15,5 +15,11 @@ namespace piclist{
 	typedef std::wstring String;
 #endif
 
+#ifdef _MBCS
+# define STRING_LIT(s) s
+#else
+# define STRING_LIT(s) L##s
+#endif
+
 }//namespace piclist
 #endif
