@@ -31,7 +31,7 @@ bool Dialog::openModal(HWND parent, LPCWSTR lpTemplateName)
 void Dialog::endDialog(INT_PTR result)
 {
 	if(hwnd_){
-		::EndDialog(hwnd_, IDOK);
+		::EndDialog(hwnd_, result);
 	}
 }
 
