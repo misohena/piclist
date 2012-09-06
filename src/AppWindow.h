@@ -16,7 +16,7 @@ namespace piclist{
 	class AppWindow : public Window
 	{
 		const String windowName_;
-		PictureContainer pictures_;
+		AlbumItemContainer albumItems_;
 		ImageCache imageCache_;
 		Layout layout_;
 
@@ -25,7 +25,7 @@ namespace piclist{
 		virtual ~AppWindow();
 
 		bool restoreWindowPlacement();
-		void setPictures(const PictureContainer &pics) { pictures_ = pics; updateLayout();}
+		void setAlbum(const AlbumItemContainer &items) { albumItems_ = items; updateLayout();}
 		void updateLayout();
 
 	private:

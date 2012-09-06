@@ -72,12 +72,15 @@ PicListApp ..> CommandLineParser
 AppWindow ..> CommandLineParser
 
 Window <|-- AppWindow
-AppWindow *--> "1" PictureContainer : 表示対象
+AppWindow *--> "1" AlbumItemContainer : 表示対象
 AppWindow *--> "1" Layout
 AppWindow *--> "1" ImageCache
 
-PictureContainer *--> "0..*" Picture
+AlbumItemContainer *--> "0..*" AlbumItem
 ImageCache *--> "0..*" Image
+
+AlbumItem <|-- AlbumLineBreak
+AlbumItem <|-- AlbumPicture
 
 class PicListApp {
   init()
@@ -85,10 +88,10 @@ class PicListApp {
 class CommandLineParser {
   parse(String)
   getWindowName():String
-  getPictures():PictureContainer
+  getAlbum():AlbumItemContainer
 }
 class AppWindow {
-  setPictures(pictures:PictureContainer)
+  setAlbum(albumItems:AlbumItemContainer)
   updateLayout()
   onPaint()
 }
@@ -96,12 +99,12 @@ class ImageCache {
   getImage(filepath:String, size:Size2i):Image
 }
 class Layout {
-  update(pictures:PictureContainer, clientSize:Size2i)
+  update(albumItems:AlbumItemContainer, clientSize:Size2i)
   getPageSize():Size2i
   getImageRect(index:size_t):Rect2i
   getNameRect(index:size_t):Rect2i
 }
-class Picture {
+class AlbumPicture {
   getFilePath():String
   getFileNameBase():String
 }

@@ -71,7 +71,7 @@ public:
 		}
 		window_->setCaption(windowCaption);
 
-		window_->setPictures(cmdline.getPictures());
+		window_->setAlbum(cmdline.getAlbum());
 
 		if(!window_->restoreWindowPlacement()){
 			window_->showWindow(nCmdShow);

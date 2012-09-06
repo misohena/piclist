@@ -3,62 +3,74 @@
 
 #include <memory>
 #include <deque>
-#include <cstdlib>
-#include <tchar.h>
-#include "String.h"
+#include "File.h"
 
 namespace piclist{
+	class AlbumItem;
+	typedef std::shared_ptr<AlbumItem> AlbumItemPtr;
+	typedef std::deque<AlbumItemPtr> AlbumItemContainer;
 
-	class Picture
+	/**
+	 * ウィンドウに表示する項目を表すベースクラスです。
+	 */
+	class AlbumItem
+	{
+	public:
+		virtual ~AlbumItem(){}
+
+		enum Type
+		{
+			TYPE_LINE_BREAK,
+			TYPE_PICTURE
+		};
+		virtual Type getType() const = 0;
+		bool isLineBreak() const { return getType() == TYPE_LINE_BREAK;}
+	};
+
+	/**
+	 * 改行を意味する項目です。
+	 */
+	class AlbumLineBreak : public AlbumItem
+	{
+	public:
+		virtual Type getType() const
+		{
+			return TYPE_LINE_BREAK;
+		}
+		static std::shared_ptr<AlbumLineBreak> create()
+		{
+			return std::shared_ptr<AlbumLineBreak>(new AlbumLineBreak());
+		}
+	};
+
+	/**
+	 * 絵のファイルを表示する項目です。
+	 */
+	class AlbumPicture : public AlbumItem
 	{
 		String filepath_;
 	public:
-		Picture(const String &filepath)
+		AlbumPicture(const String &filepath)
 			: filepath_(filepath)
 		{}
+		virtual Type getType() const
+		{
+			return TYPE_PICTURE;
+		}
 		const String &getFilePath() const
 		{
 			return filepath_;
 		}
 		String getFileNameBase() const
 		{
-			String::value_type base[1024];
-			if(_wsplitpath_s(filepath_.c_str(), NULL, 0, NULL, 0, base, sizeof(base)/sizeof(base[0]), NULL, 0)){
-				return String();
-			}
-			return base;
+			return piclist::getFileNameBase(filepath_);
 		}
-
-		// ソートのため
-
-		class LessFilePath
+		static std::shared_ptr<AlbumPicture> create(const String &filepath)
 		{
-		public:
-			bool operator()(const Picture &lhs, const Picture &rhs) const
-			{
-				return lhs.getFilePath() < rhs.getFilePath();
-			}
-		};
-
-		// 改行のため
-		///@todo PictureではなくAlbumItemのようなクラスを作るべきかもしれない。
-
-		static TCHAR *getLineBreakFilePath()
-		{
-			return _T("\x1b:br");
+			return std::shared_ptr<AlbumPicture>(new AlbumPicture(filepath));
 		}
-		static Picture createLineBreak()
-		{
-			return Picture(String());
-		}
-		bool isLineBreak() const
-		{
-			return filepath_.empty();
-		}
-
 	};
 
-	typedef std::deque<Picture> PictureContainer;
 
 }//namespace piclist
 #endif

@@ -54,38 +54,38 @@ void AppWindow::onPaint(HDC hdc)
 	stringFormat.SetLineAlignment(Gdiplus::StringAlignmentCenter);
 
 	// draw cells
-	const std::size_t pictureCount = pictures_.size();
-	for(std::size_t index = 0; index < pictureCount; ++index){
-		const Picture &pic = pictures_[index];
+	const std::size_t itemCount = albumItems_.size();
+	for(std::size_t index = 0; index < itemCount; ++index){
+		const AlbumItemPtr &item = albumItems_[index];
 
-		if(pic.isLineBreak()){
-			continue;
+		if(const AlbumPicture * const pic = dynamic_cast<AlbumPicture *>(item.get())){
+
+			// image.
+			if(ImagePtr im = imageCache_.getImage(pic->getFilePath(), Size2i(layout_.getImageWidth(), layout_.getImageHeight()))){
+				const double srcW = im->getWidth();
+				const double srcH = im->getHeight();
+				const Rect2i cellImageRect = layout_.getImageRect(index);
+				const double scale = min(cellImageRect.getWidth() / srcW, cellImageRect.getHeight() / srcH);
+				const int dstW = static_cast<int>(srcW * scale);
+				const int dstH = static_cast<int>(srcH * scale);
+				graphics.DrawImage(
+					im->getGdiPlusImage(),
+					cellImageRect.left + (cellImageRect.getWidth() - dstW) / 2,
+					cellImageRect.top + (cellImageRect.getHeight() - dstH) / 2,
+					dstW,
+					dstH);
+			}
+
+			// name.
+			const Rect2i cellNameRect = layout_.getNameRect(index);
+			Gdiplus::RectF nameRect(
+				static_cast<Gdiplus::REAL>(cellNameRect.left),
+				static_cast<Gdiplus::REAL>(cellNameRect.top),
+				static_cast<Gdiplus::REAL>(cellNameRect.getWidth()),
+				static_cast<Gdiplus::REAL>(cellNameRect.getHeight()));
+			graphics.DrawString(pic->getFileNameBase().c_str(), -1, &font, nameRect, &stringFormat, &textBrush);
+
 		}
-
-		// image.
-		if(ImagePtr im = imageCache_.getImage(pic.getFilePath(), Size2i(layout_.getImageWidth(), layout_.getImageHeight()))){
-			const double srcW = im->getWidth();
-			const double srcH = im->getHeight();
-			const Rect2i cellImageRect = layout_.getImageRect(index);
-			const double scale = min(cellImageRect.getWidth() / srcW, cellImageRect.getHeight() / srcH);
-			const int dstW = static_cast<int>(srcW * scale);
-			const int dstH = static_cast<int>(srcH * scale);
-			graphics.DrawImage(
-				im->getGdiPlusImage(),
-				cellImageRect.left + (cellImageRect.getWidth() - dstW) / 2,
-				cellImageRect.top + (cellImageRect.getHeight() - dstH) / 2,
-				dstW,
-				dstH);
-		}
-
-		// name.
-		const Rect2i cellNameRect = layout_.getNameRect(index);
-		Gdiplus::RectF nameRect(
-			static_cast<Gdiplus::REAL>(cellNameRect.left),
-			static_cast<Gdiplus::REAL>(cellNameRect.top),
-			static_cast<Gdiplus::REAL>(cellNameRect.getWidth()),
-			static_cast<Gdiplus::REAL>(cellNameRect.getHeight()));
-		graphics.DrawString(pic.getFileNameBase().c_str(), -1, &font, nameRect, &stringFormat, &textBrush);
 	}
 }
 
@@ -119,26 +119,25 @@ void AppWindow::onCopyData(HWND srcwnd, ULONG_PTR dwData, DWORD cbData, PVOID lp
 	const int lenCurrentDir = lstrlen(currentDir);
 	const TCHAR * const cmdlineStr = currentDir + lenCurrentDir + 1;
 
-	const String currentDirOld = getCurrentDirectory();
-	setCurrentDirectory(currentDir);
+	{
+		ScopedCurrentDirectory cd(currentDir);
 
-	CommandLineParser cmdline;
-	cmdline.parse(cmdlineStr);
+		CommandLineParser cmdline;
+		cmdline.parse(cmdlineStr);
 
-	setPictures(cmdline.getPictures());
-
-	setCurrentDirectory(currentDirOld);
+		setAlbum(cmdline.getAlbum());
+	}
 }
 
 void AppWindow::updateLayout(void)
 {
 	const Size2i clientSize1 = getClientSize();
-	layout_.update(pictures_, clientSize1);
+	layout_.update(albumItems_, clientSize1);
 
 	setVScrollBarVisible(layout_.getPageSize().h > clientSize1.h);
 
 	const Size2i clientSize2 = getClientSize();
-	layout_.update(pictures_, clientSize2);
+	layout_.update(albumItems_, clientSize2);
 
 	setVScrollRange(0, layout_.getPageSize().h);
 	setVScrollVisibleAmount(clientSize2.h);

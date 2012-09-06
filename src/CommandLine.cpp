@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <iterator>
 #include <Windows.h>
 #include <tchar.h>
 #include "File.h"
@@ -106,6 +107,7 @@ CommandLineParser::CommandLineParser()
 void CommandLineParser::parse(const String::value_type *cmdLineStr)
 {
 	std::vector<String> args = splitCmdLineArgs(cmdLineStr);
+
 	if(args.size() > 1){
 		for(std::vector<String>::const_iterator it = args.begin() + 1, itEnd = args.end(); it != itEnd; ++it){
 			const String &arg = *it;
@@ -117,37 +119,22 @@ void CommandLineParser::parse(const String::value_type *cmdLineStr)
 					}
 				}
 				else if(arg == _T("-br")){
-					files_.push_back(Picture::getLineBreakFilePath());
+					albumItems_.push_back(AlbumLineBreak::create());
 				}
 				else{
 					//unknown
 				}
 			}
 			else{
-				files_.push_back(arg);
+				std::vector<String> files;
+				for(FileEnumerator fe(arg); fe.valid(); fe.increment()){
+					files.push_back(fe.getEntryFilePath());
+				}
+				std::sort(files.begin(), files.end());
+				std::transform(files.begin(), files.end(), std::back_inserter(albumItems_), &AlbumPicture::create);
 			}
 		}
 	}
 }
-
-PictureContainer CommandLineParser::getPictures() const
-{
-	PictureContainer pictures;
-	for(std::vector<String>::const_iterator it = files_.begin(), itEnd = files_.end(); it != itEnd; ++it){
-		if(*it == Picture::getLineBreakFilePath()){
-			pictures.push_back(Picture::createLineBreak());
-		}
-		else{
-			PictureContainer subPics;
-			for(FileEnumerator fe(*it); fe.valid(); fe.increment()){
-				subPics.push_back(Picture(fe.getEntryFilePath()));
-			}
-			std::sort(subPics.begin(), subPics.end(), Picture::LessFilePath());
-			pictures.insert(pictures.end(), subPics.begin(), subPics.end());
-		}
-	}
-	return pictures;
-}
-
 
 }//namespace piclist

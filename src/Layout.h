@@ -25,15 +25,15 @@ namespace piclist{
 		const int cellStepX_;
 		const int cellStepY_;
 
-		std::size_t pictureCount_;
+		std::size_t itemCount_;
 		unsigned int columns_;
 		Size2i pageSize_;
 
 		typedef std::map<std::size_t, int> LineContainer;
-		LineContainer lines_; //pictureインデックス -> Y座標 マップ
+		LineContainer lines_; //AlbumItemインデックス -> Y座標 マップ
 	public:
 		Layout();
-		void update(const PictureContainer &pictures, const Size2i &clientSize);
+		void update(const AlbumItemContainer &items, const Size2i &clientSize);
 		const Size2i getPageSize() const;
 
 		Rect2i getImageRect(std::size_t index) const;

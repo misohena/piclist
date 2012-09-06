@@ -10,13 +10,13 @@ namespace piclist{
 class CommandLineParser
 {
 	String windowName_;
-	std::vector<String> files_;
+	AlbumItemContainer albumItems_;
 public:
 	CommandLineParser();
 	void parse(const String::value_type *cmdLineStr);
 
 	const String &getWindowName() const { return windowName_;}
-	PictureContainer getPictures() const;
+	AlbumItemContainer getAlbum() const { return albumItems_;}
 };
 
 }//namespace piclist

@@ -13,40 +13,40 @@ Layout::Layout()
 	, columnSpace_(1)
 	, cellStepX_(cellWidth_ + columnSpace_)
 	, cellStepY_(cellHeight_ + lineSpace_)
-	, pictureCount_()
+	, itemCount_()
 	, columns_(1)
 	, pageSize_()
 {}
 
-void Layout::update(const PictureContainer &pictures, const Size2i &clientSize)
+void Layout::update(const AlbumItemContainer &items, const Size2i &clientSize)
 {
 	lines_.clear();
-	pictureCount_ = pictures.size();
+	itemCount_ = items.size();
 	columns_ = std::max(1, (clientSize.w + columnSpace_) / cellStepX_);
 
-	typedef PictureContainer::const_iterator PicIt;
+	typedef AlbumItemContainer::const_iterator ItemIt;
 
 	class LineDivider
 	{
 		const unsigned int columns_;
-		const PicIt beg_;
-		const PicIt end_;
-		PicIt curr_;
+		const ItemIt beg_;
+		const ItemIt end_;
+		ItemIt curr_;
 	public:
-		LineDivider(unsigned int columns, const PicIt &beg, const PicIt &end)
+		LineDivider(unsigned int columns, const ItemIt &beg, const ItemIt &end)
 			: columns_(columns), beg_(beg), end_(end), curr_(beg) {}
 
 		bool isTerminated() const { return curr_ == end_;}
-		const PicIt &getCurrent() const { return curr_;}
-		PicIt getLineEnd()
+		const ItemIt &getCurrent() const { return curr_;}
+		ItemIt getLineEnd()
 		{
 			unsigned int count = 0;
 			for(;;){
 				if(curr_ == end_){
 					return curr_;
 				}
-				if(curr_->isLineBreak()){
-					const PicIt lineEnd = curr_;
+				if((*curr_)->isLineBreak()){
+					const ItemIt lineEnd = curr_;
 					++curr_;
 					return lineEnd;
 				}
@@ -58,14 +58,14 @@ void Layout::update(const PictureContainer &pictures, const Size2i &clientSize)
 		}
 	};
 
-	LineDivider lineDivider(columns_, pictures.begin(), pictures.end());
+	LineDivider lineDivider(columns_, items.begin(), items.end());
 
 	int lineTop = 0;
 	while(!lineDivider.isTerminated()){
-		const PicIt lineBeg = lineDivider.getCurrent();
-		const PicIt lineEnd = lineDivider.getLineEnd();
+		const ItemIt lineBeg = lineDivider.getCurrent();
+		const ItemIt lineEnd = lineDivider.getLineEnd();
 
-		lines_.insert(LineContainer::value_type(lineBeg - pictures.begin(), lineTop));
+		lines_.insert(LineContainer::value_type(lineBeg - items.begin(), lineTop));
 
 		///@todo ‰æ‘œ‚Ì‚‚³‚ªAUTO‚Ìê‡As“à‚ÌÅ‘å‚Ì‰æ‘œ‚Ì‚‚³‚ğ‹‚ß‚éB
 
