@@ -13,16 +13,19 @@
   <ItemGroup>
     <ClCompile Include="..\src\AppWindow.cpp" />
     <ClCompile Include="..\src\CommandLine.cpp" />
+    <ClCompile Include="..\src\Dialog.cpp" />
     <ClCompile Include="..\src\File.cpp" />
     <ClCompile Include="..\src\Image.cpp" />
     <ClCompile Include="..\src\Layout.cpp" />
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\Menu.cpp" />
+    <ClCompile Include="..\src\ValueInputDialog.cpp" />
     <ClCompile Include="..\src\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\AppWindow.h" />
     <ClInclude Include="..\src\CommandLine.h" />
+    <ClInclude Include="..\src\Dialog.h" />
     <ClInclude Include="..\src\File.h" />
     <ClInclude Include="..\src\Image.h" />
     <ClInclude Include="..\src\ImageCache.h" />
@@ -32,6 +35,7 @@
     <ClInclude Include="..\src\Menu.h" />
     <ClInclude Include="..\src\resource.h" />
     <ClInclude Include="..\src\String.h" />
+    <ClInclude Include="..\src\ValueInputDialog.h" />
     <ClInclude Include="..\src\Window.h" />
     <ClInclude Include="..\resource.h" />
   </ItemGroup>
