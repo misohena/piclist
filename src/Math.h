@@ -39,5 +39,20 @@ namespace piclist{
 		int getHeight() const { return bottom - top;}
 	};
 
+	/**
+	 * 二次元座標系における点を表すクラスです。
+	 */
+	class Point2i
+	{
+	public:
+		int x;
+		int y;
+		Point2i(int x, int y)
+			: x(x), y(y)
+		{}
+		Point2i()
+			: x(0), y(0)
+		{}
+	};
 }//namespace piclist
 #endif
