@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "String.h"
-#include "Picture.h"
+#include "Album.h"
 
 namespace piclist{
 

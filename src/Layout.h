@@ -3,7 +3,7 @@
 
 #include <map>
 #include "Math.h"
-#include "Picture.h"
+#include "Album.h"
 
 namespace piclist{
 

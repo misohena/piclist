@@ -56,7 +56,7 @@ Visual Studio 2010でビルドしています。出来るだけ他のライブ�
 - piclist固有なもの
   - main.cpp :: main関数とアプリケーションクラスを定義する。
   - CommandLine.h|cpp :: コマンドライン文字列からウィンドウ名や絵のファイル名リストを取り出す。main.cppからだけでなくAppWindowからも使う(他のプロセスから要求されることがあるので)。
-  - Picture.h :: piclistで扱う「絵」についての定義。今のところ絵はファイル名のみを保持する。
+  - Album.h :: piclistで表示する対象となるモデルを定義する。絵はAlbumPictureクラスとして、改行はAlbumLineBreakクラスとして表現される。
   - Image.h|cpp :: piclistで扱う「画像」についての定義。
   - ImageCache.h :: 同じファイルの画像を何度も読み込まなくても良いようにするためのしくみ。今のところAppWindowのみが利用する。
   - AppWindow.h|cpp :: アプリケーションウィンドウ。AppWindowはWindowの派生クラス。その唯一のインスタンスはmain.cppで生成・破棄される。

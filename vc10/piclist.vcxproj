@@ -27,7 +27,7 @@
     <ClInclude Include="..\src\ImageCache.h" />
     <ClInclude Include="..\src\Layout.h" />
     <ClInclude Include="..\src\Math.h" />
-    <ClInclude Include="..\src\Picture.h" />
+    <ClInclude Include="..\src\Album.h" />
     <ClInclude Include="..\src\String.h" />
     <ClInclude Include="..\src\Window.h" />
   </ItemGroup>

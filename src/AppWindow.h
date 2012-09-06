@@ -2,7 +2,7 @@
 #define APPWINDOW_H
 
 #include "Window.h"
-#include "Picture.h"
+#include "Album.h"
 #include "ImageCache.h"
 #include "Layout.h"
 
