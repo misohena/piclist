@@ -13,6 +13,7 @@
   <ItemGroup>
     <ClCompile Include="..\src\AppWindow.cpp" />
     <ClCompile Include="..\src\CommandLine.cpp" />
+    <ClCompile Include="..\src\File.cpp" />
     <ClCompile Include="..\src\Image.cpp" />
     <ClCompile Include="..\src\Layout.cpp" />
     <ClCompile Include="..\src\main.cpp" />
