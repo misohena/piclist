@@ -39,6 +39,8 @@ namespace piclist{
 		Rect2i getWindowRect() const;
 		Size2i getClientSize() const;
 
+		Point2i clientToScreen(const Point2i &p) const;
+
 		void invalidate();
 		void scrollWindowContent(int dx, int dy);
 

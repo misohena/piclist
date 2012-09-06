@@ -154,6 +154,21 @@ Size2i Window::getClientSize() const
 }
 
 /**
+ * クライアント領域座標系の点をスクリーン座標系へ変換します。
+ */
+Point2i Window::clientToScreen(const Point2i &p) const
+{
+	POINT pt = {p.x, p.y};
+	if(::ClientToScreen(hwnd_, &pt)){
+		return Point2i(pt.x, pt.y);
+	}
+	else{
+		return Point2i();
+	}
+}
+
+
+/**
  * ウィンドウのクライアント領域内を無効化して再描画を促します。
  */
 void Window::invalidate()
