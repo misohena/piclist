@@ -1,19 +1,23 @@
 #include <windows.h>
 #include <tchar.h>
 #include <GdiPlus.h>
+#include "resource.h"
 #include "CommandLine.h"
 #include "File.h"
-#include "resource.h"
-#include "AppWindow.h"
 #include "ValueInputDialog.h"
+#include "Stream.h"
+#include "AppWindow.h"
 
 
 namespace piclist{
 
 static const TCHAR * const REGISTRY_KEY = _T("SOFTWARE\\Misohena\\piclist\\");
+static const TCHAR * const APPWINDOW_CLASS_NAME = _T("PicListWindowClass");
+static const TCHAR * const APPWINDOW_SUFFIX = _T(" - piclist");
 
-AppWindow::AppWindow(const String &className, const String &windowName)
-	: Window(className)
+
+AppWindow::AppWindow(const String &windowName)
+	: Window(APPWINDOW_CLASS_NAME)
 	, windowName_(windowName)
 {
 	menuMainPopup_.load(IDR_MENU_MAINPOPUP);
@@ -23,6 +27,31 @@ AppWindow::~AppWindow()
 {
 }
 
+/**
+ * アプリケーションウィンドウのクラス名定数を返します。
+ */
+const TCHAR *AppWindow::getAppWindowClassName()
+{
+	return APPWINDOW_CLASS_NAME;
+}
+
+/**
+ * アプリケーションウィンドウのキャプション名を作成します。
+ */
+String AppWindow::makeWindowCaption(const String &windowName)
+{
+	return windowName + APPWINDOW_SUFFIX;
+}
+
+/**
+ * ウィンドウ名からすでに開いているアプリケーションウィンドウを探します。
+ */
+HWND AppWindow::findWindowByWindowName(const String &windowName)
+{
+	return ::FindWindow(AppWindow::getAppWindowClassName(), makeWindowCaption(windowName).c_str());
+}
+
+
 bool AppWindow::restoreWindowPlacement()
 {
 	return Window::restoreWindowPlacement(REGISTRY_KEY + windowName_);
@@ -30,6 +59,7 @@ bool AppWindow::restoreWindowPlacement()
 
 void AppWindow::onCreate()
 {
+	setCaption(makeWindowCaption(windowName_));
 	updateLayout();
 }
 
@@ -134,7 +164,7 @@ void AppWindow::onCommand(int notificationCode, int id, HWND hWndControl)
 		}
 		break;
 	case ID_MAINPOPUP_DUP_WINDOW:
-		//duplicateWindow();
+		duplicateWindow();
 		break;
 	case ID_MAINPOPUP_IMAGE_WIDTH:
 		inputLayoutParam(Layout::LP_IMAGE_WIDTH);
@@ -168,17 +198,135 @@ void AppWindow::inputLayoutParam(Layout::LayoutParamType lpt)
 
 void AppWindow::onCopyData(HWND srcwnd, ULONG_PTR dwData, DWORD cbData, PVOID lpData)
 {
-	const TCHAR * const currentDir = (TCHAR *)lpData;
-	const int lenCurrentDir = lstrlen(currentDir);
-	const TCHAR * const cmdlineStr = currentDir + lenCurrentDir + 1;
+	switch(dwData){
+	case 0: receiveCommandLine(cbData, reinterpret_cast<unsigned char *>(lpData)); break;
+	case 1: receiveAlbum(cbData, reinterpret_cast<unsigned char *>(lpData)); break;
+	}
+}
 
+void AppWindow::sendToOtherWindow(HWND dstWnd, unsigned int code, std::vector<unsigned char> &bytes)
+{
+	::COPYDATASTRUCT cds;
+	cds.dwData = code;
+	cds.cbData = bytes.size();
+	cds.lpData = bytes.empty() ? NULL : &bytes[0];
+	::SendMessage(dstWnd, WM_COPYDATA, NULL, (LPARAM)&cds);
+}
+
+void AppWindow::sendCommandLine(HWND dstWnd, const String &currentDir, const String &cmdlineStr)
+{
+	VectorOutputStream os;
+	os.writeString(currentDir);
+	os.writeString(cmdlineStr);
+	sendToOtherWindow(dstWnd, 0, os.getBuffer());
+}
+
+void AppWindow::receiveCommandLine(unsigned int cbData, unsigned char *lpData)
+{
+	MemoryInputStream is(lpData, lpData + cbData);
+	const String currentDir = is.readString();
+	const String cmdlineStr = is.readString();
 	{
 		ScopedCurrentDirectory cd(currentDir);
 
 		CommandLineParser cmdline;
-		cmdline.parse(cmdlineStr);
+		cmdline.parse(cmdlineStr.c_str());
 
 		setAlbum(cmdline.getAlbum());
+	}
+}
+
+void AppWindow::sendAlbum(HWND dstWnd, const AlbumItemContainer &albumItems)
+{
+	VectorOutputStream os;
+
+	const std::size_t itemCount = albumItems.size();
+	os.writeUInt32(itemCount);
+
+	for(std::size_t i = 0; i < itemCount; ++i){
+		const AlbumItemPtr &item = albumItems[i];
+		const AlbumItem::Type type = item->getType();
+		os.writeUInt32(type);
+		switch(type){
+		case AlbumItem::TYPE_PICTURE:
+			if(AlbumPicture *pic = dynamic_cast<AlbumPicture *>(item.get())){
+				os.writeString(pic->getFilePath()); ///@todo 確実にフルパスにしなければならないのでは無いか。今のところたまたまフルパスになるけど。
+			}
+			break;
+		case AlbumItem::TYPE_LINE_BREAK:
+			break;
+		}
+	}
+
+	sendToOtherWindow(dstWnd, 1, os.getBuffer());
+}
+
+void AppWindow::receiveAlbum(unsigned int cbData, unsigned char *lpData)
+{
+	MemoryInputStream is(lpData, lpData + cbData);
+
+	const std::size_t itemCount = is.readUInt32();
+
+	AlbumItemContainer albumItems;
+
+	for(std::size_t i = 0; i < itemCount; ++i){
+		const unsigned int type = is.readUInt32();
+		switch(type){
+		case AlbumItem::TYPE_PICTURE:
+			{
+				const String filepath = is.readString();
+				AlbumItemPtr pic(AlbumPicture::create(filepath));
+				albumItems.push_back(pic);
+			}
+			break;
+		case AlbumItem::TYPE_LINE_BREAK:
+			albumItems.push_back(AlbumLineBreak::create());
+			break;
+		default:
+			//error: unknown type
+			return; //abort receive
+		}
+	}
+	if(is.hasError()){
+		return;
+	}
+	setAlbum(albumItems);
+}
+
+HWND AppWindow::openNewWindow(const String &windowName)
+{
+	TCHAR exepath[MAX_PATH];
+	::GetModuleFileName(NULL, exepath, MAX_PATH);
+
+	const String cmdline = String(exepath) + _T(" -w ") + windowName;
+	STARTUPINFO si = {sizeof(si)};
+	PROCESS_INFORMATION pi = {};
+	if(!::CreateProcess(exepath, const_cast<TCHAR *>(cmdline.c_str()), NULL, NULL, FALSE, NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi)){
+		return NULL;
+	}
+	::CloseHandle(pi.hThread);
+	::CloseHandle(pi.hProcess);
+
+	for(int i = 0; i < 10; ++i){
+		::Sleep(200);
+		if(HWND hwnd = findWindowByWindowName(windowName)){
+			return hwnd;
+		}
+	}
+
+	return NULL;
+}
+
+void AppWindow::duplicateWindow()
+{
+	const String newWindowName = windowName_ + _T("のコピー");
+	if(HWND hwnd = findWindowByWindowName(newWindowName)){
+		if(::MessageBox(getWindowHandle(), _T("ウィンドウ名はすでに存在します。そのウィンドウへ複製しますか？"), _T("確認"), MB_OKCANCEL) == IDOK){
+			sendAlbum(hwnd, albumItems_);
+		}
+	}
+	else if(HWND hwnd = openNewWindow(newWindowName)){
+		sendAlbum(hwnd, albumItems_);
 	}
 }
 

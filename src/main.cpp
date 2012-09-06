@@ -44,32 +44,15 @@ public:
 		CommandLineParser cmdline;
 		cmdline.parse(cmdlineStr);
 
-		static const TCHAR * const WINDOW_SUFFIX = _T(" - piclist");
-		static const TCHAR * const WINDOW_CLASS_NAME = _T("PicListWindowClass");
-
-		const String windowCaption = cmdline.getWindowName() + WINDOW_SUFFIX;
-
-		if(HWND hwnd = ::FindWindow(WINDOW_CLASS_NAME, windowCaption.c_str())){
-			const String cd = getCurrentDirectory(); //カレントディレクトリも送らないとコマンドラインを正しく解釈できない。
-			std::vector<TCHAR> data;
-			data.insert(data.end(), cd.begin(), cd.end());
-			data.push_back(_T('\0'));
-			data.insert(data.end(), cmdlineStr, cmdlineStr + lstrlen(cmdlineStr));
-			data.push_back(_T('\0'));
-
-			::COPYDATASTRUCT cds;
-			cds.dwData = 0;
-			cds.cbData = data.size() * sizeof(TCHAR);
-			cds.lpData = &data[0];
-			::SendMessage(hwnd, WM_COPYDATA, NULL, (LPARAM)&cds);
+		if(HWND hwnd = AppWindow::findWindowByWindowName(cmdline.getWindowName())){
+			AppWindow::sendCommandLine(hwnd, getCurrentDirectory(), cmdlineStr);//カレントディレクトリも送らないとコマンドラインを正しく解釈できない。
 			return false;
 		}
 
-		window_.reset(new AppWindow(WINDOW_CLASS_NAME, cmdline.getWindowName()));
+		window_.reset(new AppWindow(cmdline.getWindowName()));
 		if(!window_->create()){
 			return false;
 		}
-		window_->setCaption(windowCaption);
 
 		window_->setAlbum(cmdline.getAlbum());
 

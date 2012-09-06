@@ -24,12 +24,27 @@ namespace piclist{
 		Menu menuMainPopup_;
 
 	public:
-		AppWindow(const String &className, const String &windowName);
+		AppWindow(const String &windowName);
 		virtual ~AppWindow();
 
 		bool restoreWindowPlacement();
 		void setAlbum(const AlbumItemContainer &items) { albumItems_ = items; updateLayout();}
 		void updateLayout();
+
+		static const TCHAR * getAppWindowClassName();
+		static String makeWindowCaption(const String &windowName);
+		static HWND findWindowByWindowName(const String &windowName);
+
+		static void sendToOtherWindow(HWND dstWnd, unsigned int code, std::vector<unsigned char> &bytes);
+		static void sendCommandLine(HWND dstWnd, const String &currentDir, const String &cmdlineStr);
+		void receiveCommandLine(unsigned int cbData, unsigned char *lpData);
+		static void sendAlbum(HWND dstWnd, const AlbumItemContainer &albumItems);
+		void receiveAlbum(unsigned int cbData, unsigned char *lpData);
+
+		static HWND openNewWindow(const String &windowName);
+
+		void duplicateWindow();
+
 
 	private:
 		virtual void onCreate();
