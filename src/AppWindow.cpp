@@ -125,7 +125,12 @@ void AppWindow::onCommand(int notificationCode, int id, HWND hWndControl)
 {
 	switch(id){
 	case ID_MAINPOPUP_TOPMOST:
-		//toggleTopMostStyle();
+		if(isZOrderTopMost()){
+			setZOrderNoTopMost();
+		}
+		else{
+			setZOrderTopMost();
+		}
 		break;
 	case ID_MAINPOPUP_DUP_WINDOW:
 		//duplicateWindow();
