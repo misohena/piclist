@@ -436,14 +436,10 @@ LRESULT Window::wndproc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 		onSize(wparam, LOWORD(lparam), HIWORD(lparam));
 		break;
 	case WM_HSCROLL:
-		{
-			onHScroll(LOWORD(wparam), HIWORD(wparam));
-		}
+		onHScroll(LOWORD(wparam), HIWORD(wparam));
 		break;
 	case WM_VSCROLL:
-		{
-			onVScroll(LOWORD(wparam), HIWORD(wparam));
-		}
+		onVScroll(LOWORD(wparam), HIWORD(wparam));
 		break;
 	case WM_MOUSEWHEEL:
 		onMouseWheel((SHORT)HIWORD(wparam), LOWORD(wparam), LOWORD(lparam), HIWORD(lparam));
