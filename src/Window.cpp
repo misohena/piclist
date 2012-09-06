@@ -167,6 +167,34 @@ Point2i Window::clientToScreen(const Point2i &p) const
 	}
 }
 
+/**
+ * ウィンドウを最前面に配置します。
+ */
+void Window::setZOrderTopMost()
+{
+	if(hwnd_){
+		::SetWindowPos(hwnd_, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+	}
+}
+
+/**
+ * ウィンドウを最前面に配置しないようにします。
+ */
+void Window::setZOrderNoTopMost()
+{
+	if(hwnd_){
+		::SetWindowPos(hwnd_, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+	}
+}
+
+/**
+ * ウィンドウが最前面に配置されているならtrue、そうでないならfalseを返します。
+ */
+bool Window::isZOrderTopMost() const
+{
+	return hwnd_ && (::GetWindowLong(hwnd_, GWL_EXSTYLE) & WS_EX_TOPMOST);
+}
+
 
 /**
  * ウィンドウのクライアント領域内を無効化して再描画を促します。

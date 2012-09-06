@@ -39,6 +39,10 @@ namespace piclist{
 		Rect2i getWindowRect() const;
 		Size2i getClientSize() const;
 
+		void setZOrderTopMost();
+		void setZOrderNoTopMost();
+		bool isZOrderTopMost() const;
+
 		Point2i clientToScreen(const Point2i &p) const;
 
 		void invalidate();
