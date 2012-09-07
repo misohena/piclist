@@ -30,6 +30,10 @@ namespace piclist{
 		void setAlbum(const AlbumItemContainer &items);
 		void updateLayout();
 
+	private:
+		void backupLayoutParams();
+		void restoreLayoutParams();
+
 		// ウィンドウメッセージ処理
 	private:
 		virtual void onCreate();

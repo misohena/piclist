@@ -20,7 +20,8 @@ namespace piclist{
 			LP_IMAGE_HEIGHT,
 			LP_NAME_HEIGHT,
 			LP_COLUMN_SPACE,
-			LP_LINE_SPACE
+			LP_LINE_SPACE,
+			LP_COUNT
 		};
 	private:
 		int imageWidth_;
@@ -51,6 +52,7 @@ namespace piclist{
 		int getNameHeight() const;
 		int getCellStepY() const;
 
+		static String getLayoutParamId(LayoutParamType lpt);
 		static String getLayoutParamName(LayoutParamType lpt);
 		int getLayoutParam(LayoutParamType lpt);
 		void setLayoutParam(LayoutParamType lpt, int value);

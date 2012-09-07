@@ -149,6 +149,18 @@ int Layout::getCellStepY(void) const
 }
 
 
+String Layout::getLayoutParamId(LayoutParamType lpt)
+{
+	switch(lpt){
+	case LP_IMAGE_WIDTH: return STRING_LIT("ImageWidth");
+	case LP_IMAGE_HEIGHT: return STRING_LIT("ImageHeight");
+	case LP_NAME_HEIGHT: return STRING_LIT("NameHeight");
+	case LP_COLUMN_SPACE: return STRING_LIT("ColumnSpace");
+	case LP_LINE_SPACE: return STRING_LIT("LineSpace");
+	default: return String();
+	}
+}
+
 String Layout::getLayoutParamName(LayoutParamType lpt)
 {
 	switch(lpt){

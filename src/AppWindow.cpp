@@ -12,6 +12,7 @@
 namespace piclist{
 
 static const TCHAR * const REGISTRY_KEY = _T("SOFTWARE\\Misohena\\piclist\\");
+static const TCHAR * const REGISTRY_PREFIX_LAYOUT_PARAMS = _T("Layout_");
 static const TCHAR * const APPWINDOW_CLASS_NAME = _T("PicListWindowClass");
 static const TCHAR * const APPWINDOW_SUFFIX = _T(" - piclist");
 
@@ -21,6 +22,8 @@ AppWindow::AppWindow(const String &windowName)
 	, windowName_(windowName)
 {
 	menuMainPopup_.load(IDR_MENU_MAINPOPUP);
+
+	restoreLayoutParams();
 }
 
 AppWindow::~AppWindow()
@@ -43,6 +46,57 @@ String AppWindow::makeWindowCaption(const String &windowName)
 bool AppWindow::restoreWindowPlacement()
 {
 	return Window::restoreWindowPlacement(REGISTRY_KEY + windowName_);
+}
+
+/**
+ * レイアウトパラメータをレジストリへ保存します。
+ */
+void AppWindow::backupLayoutParams()
+{
+	///@todo Layoutクラスへ移動すべき？　Layoutは今のところwindows.hに依存していないので、レジストリAPIをラップしたものを作ってからにしたい。
+	const String keyPath = REGISTRY_KEY + windowName_;
+	HKEY key;
+	DWORD disposition;
+	const LONG result = ::RegCreateKeyEx(
+		HKEY_CURRENT_USER, keyPath.c_str(), NULL, _T(""), REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &key, &disposition);
+	if(result != ERROR_SUCCESS){
+		return;
+	}
+	for(int lpti = 0; lpti < Layout::LP_COUNT; ++lpti){
+		const Layout::LayoutParamType lpt = static_cast<Layout::LayoutParamType>(lpti);
+		const DWORD value = layout_.getLayoutParam(lpt);
+		const String valueName = REGISTRY_PREFIX_LAYOUT_PARAMS + Layout::getLayoutParamId(lpt);
+		::RegSetValueEx(key, valueName.c_str(), NULL, REG_DWORD, (BYTE *)&value, sizeof(value));
+	}
+	::RegCloseKey(key);
+	return;
+}
+
+/**
+ * レイアウトパラメータをレジストリから読み込みます。
+ */
+void AppWindow::restoreLayoutParams()
+{
+	const String keyPath = REGISTRY_KEY + windowName_;
+	HKEY key;
+	LONG result;
+	result = ::RegOpenKeyEx(
+		HKEY_CURRENT_USER, keyPath.c_str(), NULL, KEY_ALL_ACCESS, &key);
+	if(result != ERROR_SUCCESS){
+		return;
+	}
+
+	for(int lpti = 0; lpti < Layout::LP_COUNT; ++lpti){
+		const Layout::LayoutParamType lpt = static_cast<Layout::LayoutParamType>(lpti);
+		DWORD value = 0;
+		DWORD type;
+		DWORD size = sizeof(value);
+		const String valueName = REGISTRY_PREFIX_LAYOUT_PARAMS + Layout::getLayoutParamId(lpt);
+		result = ::RegQueryValueEx(key, valueName.c_str(), NULL, &type, (BYTE *)&value, &size);
+		if(result == ERROR_SUCCESS && type == REG_DWORD && size == sizeof(value) ){
+			layout_.setLayoutParam(lpt, value);
+		}
+	}
 }
 
 void AppWindow::setAlbum(const AlbumItemContainer &items)
@@ -80,6 +134,7 @@ void AppWindow::onCreate()
 void AppWindow::onDestroy()
 {
 	backupWindowPlacement(REGISTRY_KEY + windowName_);
+	backupLayoutParams();
 }
 
 void AppWindow::onPaint(HDC hdc)
