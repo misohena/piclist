@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <numeric>
 #include "Layout.h"
 
 namespace piclist{
@@ -19,12 +20,12 @@ Layout::Layout()
 void Layout::updateCellLayout()
 {
 	cellWidth_ = imageWidth_;
-	cellHeight_ = imageHeight_ + nameHeight_;
+	cellHeight_ = (isImageHeightAuto() ? imageWidth_ : imageHeight_) + nameHeight_;
 	cellStepX_ = cellWidth_ + columnSpace_;
 	cellStepY_ = cellHeight_ + lineSpace_;
 }
 
-void Layout::update(const AlbumItemContainer &items, const Size2i &clientSize)
+void Layout::update(const AlbumItemContainer &items, const Size2i &clientSize, ImageCache &imageCache)
 {
 	updateCellLayout();
 
@@ -73,11 +74,30 @@ void Layout::update(const AlbumItemContainer &items, const Size2i &clientSize)
 		const ItemIt lineBeg = lineDivider.getCurrent();
 		const ItemIt lineEnd = lineDivider.getLineEnd();
 
-		lines_.insert(LineContainer::value_type(lineBeg - items.begin(), lineTop));
+		// 画像の高さがAUTOの場合、行内の最大の画像の高さを求める。
+		if(isImageHeightAuto()){
+			const int maxImageHeight = std::accumulate(lineBeg, lineEnd, 0, [&](int maxImageHeight, const AlbumItemPtr &item) -> int {
+				switch(item->getType()){
+				case AlbumItem::TYPE_LINE_BREAK:
+					break;
+				case AlbumItem::TYPE_PICTURE:
+					if(const AlbumPicture *pic = dynamic_cast<const AlbumPicture *>(item.get())){
+						if(const ImagePtr im = imageCache.getImage(pic->getFilePath(), Size2i(getImageWidth(), getImageHeight()))){
+							return std::max(maxImageHeight, im->getHeight());
+						}
+					}
+					break;
+				}
+				return maxImageHeight;
+			});
+			lines_.insert(LineContainer::value_type(lineBeg - items.begin(), LineInfo(lineTop, maxImageHeight)));
+			lineTop += maxImageHeight + nameHeight_ + lineSpace_;
+		}
+		else{
+			lines_.insert(LineContainer::value_type(lineBeg - items.begin(), LineInfo(lineTop, imageHeight_)));
+			lineTop += cellStepY_;
+		}
 
-		///@todo 画像の高さがAUTOの場合、行内の最大の画像の高さを求める。
-
-		lineTop += cellStepY_;
 	}
 
 	pageSize_.set(
@@ -90,10 +110,10 @@ const Size2i Layout::getPageSize() const
 	return pageSize_;
 }
 
-std::pair<std::size_t, int> Layout::findLine(std::size_t index) const
+std::pair<std::size_t, Layout::LineInfo> Layout::findLine(std::size_t index) const
 {
 	if(lines_.empty()){
-		return std::pair<std::size_t, int>(0, 0);
+		return std::pair<std::size_t, LineInfo>(0, LineInfo(0, 0));
 	}
 
 	LineContainer::const_iterator it = lines_.lower_bound(index);
@@ -104,7 +124,7 @@ std::pair<std::size_t, int> Layout::findLine(std::size_t index) const
 		return *it;
 	}
 	if(it == lines_.begin()){
-		return std::pair<std::size_t, int>(0, 0);
+		return std::pair<std::size_t, LineInfo>(0, LineInfo(0, 0));
 	}
 	--it;
 	return *it;
@@ -112,19 +132,19 @@ std::pair<std::size_t, int> Layout::findLine(std::size_t index) const
 
 Rect2i Layout::getImageRect(std::size_t index) const
 {
-	const std::pair<std::size_t, int> line = findLine(index);
+	const std::pair<std::size_t, LineInfo> line = findLine(index);
 	const int x = (index - line.first) % columns_ * cellStepX_;
-	const int y = (index - line.first) / columns_ * cellStepY_ + line.second;
+	const int y = (index - line.first) / columns_ * cellStepY_ + line.second.cellTop;
 
-	return Rect2i(x, y, x + imageWidth_, y + imageHeight_);
+	return Rect2i(x, y, x + imageWidth_, y + line.second.imageHeight);
 }
 
 Rect2i Layout::getNameRect(std::size_t index) const
 {
-	const std::pair<std::size_t, int> line = findLine(index);
+	const std::pair<std::size_t, LineInfo> line = findLine(index);
 	const int x = (index - line.first) % columns_ * cellStepX_;
-	const int y = (index - line.first) / columns_ * cellStepY_ + line.second
-		+ imageHeight_;
+	const int y = (index - line.first) / columns_ * cellStepY_ + line.second.cellTop
+		+ line.second.imageHeight;
 
 	return Rect2i(x, y, x + cellWidth_, y + nameHeight_);
 }
@@ -136,6 +156,16 @@ int Layout::getImageWidth() const
 int Layout::getImageHeight() const
 {
 	return imageHeight_;
+}
+
+bool Layout::isImageHeightAuto() const
+{
+	return imageHeight_ < 0;
+}
+
+int Layout::getImageHeightMax() const
+{
+	return imageHeight_ < 0 ? -imageHeight_ : imageHeight_;
 }
 
 int Layout::getNameHeight(void) const
@@ -165,7 +195,7 @@ String Layout::getLayoutParamName(LayoutParamType lpt)
 {
 	switch(lpt){
 	case LP_IMAGE_WIDTH: return STRING_LIT("画像の幅");
-	case LP_IMAGE_HEIGHT: return STRING_LIT("画像の高さ");
+	case LP_IMAGE_HEIGHT: return STRING_LIT("画像の高さ(負の時、-高さ以内で自動)");
 	case LP_NAME_HEIGHT: return STRING_LIT("ファイル名の高さ");
 	case LP_COLUMN_SPACE: return STRING_LIT("桁間スペース");
 	case LP_LINE_SPACE: return STRING_LIT("行間スペース");

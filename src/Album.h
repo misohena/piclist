@@ -25,6 +25,25 @@ namespace piclist{
 		};
 		virtual Type getType() const = 0;
 		bool isLineBreak() const { return getType() == TYPE_LINE_BREAK;}
+
+		template<typename R, typename F>
+		R dispatch(F &f)
+		{
+			switch(getType()){
+			case TYPE_LINE_BREAK: return f(*static_cast<AlbumLineBreak *>(this)); break;
+			case TYPE_PICTURE: return f(*static_cast<AlbumPicture *>(this)); break;
+			default: throw std::runtime_error("unknown album type.");
+			}
+		}
+		template<typename R, typename F>
+		R dispatch(F &f) const
+		{
+			switch(getType()){
+			case TYPE_LINE_BREAK: return f(*static_cast<const AlbumLineBreak *>(this)); break;
+			case TYPE_PICTURE: return f(*static_cast<const AlbumPicture *>(this)); break;
+			default: throw std::runtime_error("unknown album type.");
+			}
+		}
 	};
 
 	/**

@@ -108,12 +108,12 @@ void AppWindow::setAlbum(const AlbumItemContainer &items)
 void AppWindow::updateLayout(void)
 {
 	const Size2i clientSize1 = getClientSize();
-	layout_.update(albumItems_, clientSize1);
+	layout_.update(albumItems_, clientSize1, imageCache_);
 
 	setVScrollBarVisible(layout_.getPageSize().h > clientSize1.h);
 
 	const Size2i clientSize2 = getClientSize();
-	layout_.update(albumItems_, clientSize2);
+	layout_.update(albumItems_, clientSize2, imageCache_);
 
 	setVScrollRange(0, layout_.getPageSize().h);
 	setVScrollVisibleAmount(clientSize2.h);
@@ -411,15 +411,20 @@ void AppWindow::sendAlbum(HWND dstWnd, const AlbumItemContainer &albumItems)
 		const AlbumItemPtr &item = albumItems[i];
 		const AlbumItem::Type type = item->getType();
 		os.writeUInt32(type);
-		switch(type){
-		case AlbumItem::TYPE_PICTURE:
-			if(AlbumPicture *pic = dynamic_cast<AlbumPicture *>(item.get())){
-				os.writeString(pic->getFilePath()); ///@todo 確実にフルパスにしなければならないのでは無いか。今のところたまたまフルパスになるけど。
+
+		struct OutputContent
+		{
+			VectorOutputStream &os;
+			OutputContent(VectorOutputStream &os) : os(os){}
+			void operator()(const AlbumPicture &pic) const
+			{
+				os.writeString(pic.getFilePath()); ///@todo 確実にフルパスにしなければならないのでは無いか。今のところたまたまフルパスになるけど。
 			}
-			break;
-		case AlbumItem::TYPE_LINE_BREAK:
-			break;
-		}
+			void operator()(const AlbumLineBreak &) const
+			{
+			}
+		};
+		item->dispatch<void>(OutputContent(os));
 	}
 
 	sendInterProcessCommand(dstWnd, IPC_ALBUM, os.getBuffer());

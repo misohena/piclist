@@ -4,6 +4,7 @@
 #include <map>
 #include "Math.h"
 #include "Album.h"
+#include "ImageCache.h"
 
 namespace piclist{
 
@@ -13,7 +14,6 @@ namespace piclist{
 	class Layout
 	{
 	public:
-		static const int IMAGE_HEIGHT_AUTO = -1;
 		enum LayoutParamType
 		{
 			LP_IMAGE_WIDTH,
@@ -38,17 +38,26 @@ namespace piclist{
 		unsigned int columns_;
 		Size2i pageSize_;
 
-		typedef std::map<std::size_t, int> LineContainer;
+		struct LineInfo
+		{
+			int cellTop;
+			int imageHeight;
+			LineInfo(int cellTop, int imageHeight) : cellTop(cellTop), imageHeight(imageHeight) {}
+		};
+
+		typedef std::map<std::size_t, LineInfo> LineContainer;
 		LineContainer lines_; //AlbumItemインデックス -> Y座標 マップ
 	public:
 		Layout();
-		void update(const AlbumItemContainer &items, const Size2i &clientSize);
+		void update(const AlbumItemContainer &items, const Size2i &clientSize, ImageCache &imageCache);
 		const Size2i getPageSize() const;
 
 		Rect2i getImageRect(std::size_t index) const;
 		Rect2i getNameRect(std::size_t index) const;
 		int getImageWidth() const;
 		int getImageHeight() const;
+		bool isImageHeightAuto() const;
+		int getImageHeightMax() const;
 		int getNameHeight() const;
 		int getCellStepY() const;
 
@@ -58,7 +67,7 @@ namespace piclist{
 		void setLayoutParam(LayoutParamType lpt, int value);
 	private:
 		void updateCellLayout();
-		std::pair<std::size_t, int> findLine(std::size_t index) const;
+		std::pair<std::size_t, LineInfo> findLine(std::size_t index) const;
 
 	};
 
