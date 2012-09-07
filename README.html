@@ -7,7 +7,7 @@
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
 <meta name="title" content="画像リスト表示プログラム(piclist)"/>
 <meta name="generator" content="Org-mode"/>
-<meta name="generated" content="2012-09-07 00:11:00 "/>
+<meta name="generated" content="2012-09-07 12:48:36 "/>
 <meta name="author" content="AKIYAMA Kouhei"/>
 <meta name="description" content=""/>
 <meta name="keywords" content=""/>
@@ -100,7 +100,14 @@
 <ul>
 <li><a href="#sec-1">1 概要</a></li>
 <li><a href="#sec-2">2 ダウンロード</a></li>
-<li><a href="#sec-3">3 使い方</a></li>
+<li><a href="#sec-3">3 使い方</a>
+<ul>
+<li><a href="#sec-3-1">3.1 基本</a></li>
+<li><a href="#sec-3-2">3.2 ウィンドウ名による複数ウィンドウの識別</a></li>
+<li><a href="#sec-3-3">3.3 改行</a></li>
+<li><a href="#sec-3-4">3.4 右クリックメニュー</a></li>
+</ul>
+</li>
 <li><a href="#sec-4">4 プログラムの構造</a></li>
 <li><a href="#sec-5">5 改善点</a></li>
 </ul>
@@ -139,6 +146,13 @@
 <div class="outline-text-2" id="text-3">
 
 
+</div>
+
+<div id="outline-container-3-1" class="outline-3">
+<h3 id="sec-3-1"><span class="section-number-3">3.1</span> 基本</h3>
+<div class="outline-text-3" id="text-3-1">
+
+
 <pre class="example">
 piclist [-w ウィンドウ名] [ファイル名(ワイルドカード) | -br]...
 </pre>
@@ -156,8 +170,23 @@ piclist 201205*.jpg
 複数指定すると、指定した順番で表示します。
 </p>
 <pre class="example">
-piclist 201205*.jpg 201208*.jpg
+piclist 201208*.jpg 201205*.jpg
 </pre>
+
+
+<p>
+この場合、201208で始まるファイルが先に並び、その後に201205で始まるファイルが並びます。
+</p>
+<p>
+ワイルドカードでマッチした複数のファイルは、ファイル名順にソートされて並びます。
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-3-2" class="outline-3">
+<h3 id="sec-3-2"><span class="section-number-3">3.2</span> ウィンドウ名による複数ウィンドウの識別</h3>
+<div class="outline-text-3" id="text-3-2">
 
 
 <p>
@@ -185,12 +214,46 @@ piclist -w bg 背景\東京*.jpg
 <p>
 ウィンドウの位置・サイズはウィンドウ名毎にレジストリに記録され、次回同じ名前でウィンドウを開いたときに反映されます。
 </p>
+</div>
+
+</div>
+
+<div id="outline-container-3-3" class="outline-3">
+<h3 id="sec-3-3"><span class="section-number-3">3.3</span> 改行</h3>
+<div class="outline-text-3" id="text-3-3">
+
+
 <p>
--brを指定すると改行することが出来ます。次の例は、東京で始まるjpgファイルを並べた後に、改行を行い、その後に岡山で始まるjpgファイルを並べます。
+"-br"を指定すると改行することが出来ます。次の例は、A班で始まるjpgファイルを並べた後に、改行を行い、その後にB班で始まるjpgファイルを並べます。
 </p>
+<pre class="example">
+piclist A班*.jpg -br B班*.jpg
+</pre>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-3-4" class="outline-3">
+<h3 id="sec-3-4"><span class="section-number-3">3.4</span> 右クリックメニュー</h3>
+<div class="outline-text-3" id="text-3-4">
+
+
 <p>
-:piclist 東京*.jpg -br 岡山*.jpg
+ウィンドウ内で右クリックするとメニューがポップアップします。このメニューから次のことが行えます。
 </p>
+<ul>
+<li>ウィンドウの最前面固定化/解除
+</li>
+<li>レイアウト調整(画像幅、高さ、名前高さ、行間、桁間の設定)
+</li>
+<li>ウィンドウの複製(同じ内容のウィンドウを別のウィンドウ名で開く)
+</li>
+</ul>
+
+
+</div>
 </div>
 
 </div>
@@ -215,7 +278,15 @@ Visual Studio 2010でビルドしています。出来るだけ他のライブ�
 </dd>
 <dt>Window.h</dt><dd>汎用的なウィンドウクラスを定義する。必要になるたびに機能を追加しつつ、他のプロジェクトでも使い回せる程度に抽象化している。
 </dd>
+<dt>Dialog.h</dt><dd>汎用的なダイアログクラスを定義する。必要になるたびに機能を追加しつつ、他のプロジェクトでも使い回せる程度に抽象化している。
+</dd>
+<dt>ValueInputDialog.h|cpp</dt><dd>一つの値(文字列・整数・浮動小数点数)の入力を受け付けるためだけのダイアログ。
+</dd>
+<dt>Menu.h</dt><dd>汎用的なメニュークラスを定義する。HMENUのラッパー。
+</dd>
 <dt>File.h</dt><dd>ファイル操作に関するクラスや関数を定義する。
+</dd>
+<dt>Stream.h</dt><dd>文字列や数値をバイト列へ変換したり、その逆を行ったりするためのクラスを定義する。
 </dd>
 </dl>
 
@@ -273,13 +344,17 @@ Visual Studio 2010でビルドしています。出来るだけ他のライブ�
 </li>
 <li>サムネイルのクリックでファイル名(の一部)をコピーできるようにする。
 </li>
+<li>フォルダやファイルをドロップできるようにする。
+</li>
+<li>内容を全消去できるようにする。
+</li>
 <li><del>改行できるようにする。</del> またはセクション(グループ?)分けできるようにする。セクションヘッダー文字を入れられるようにする。
 </li>
 <li>行の高さを画像によって自動的に計算できるようにする。つまり、サムネイルの高さとして「自動」を設定できるようにする。
 </li>
 <li><del>すでに開いているウィンドウで開くとき、カレントディレクトリが違うため相対パス指定のファイル名が表示されない問題を解消する。</del>
 </li>
-<li>レイアウトパラメータをレジストリに保存する。
+<li><del>レイアウトパラメータをレジストリに保存する。</del>
 </li>
 <li><del>ウィンドウを複製できるようにする。</del>
 </li>
@@ -290,7 +365,7 @@ Visual Studio 2010でビルドしています。出来るだけ他のライブ�
 </div>
 
 <div id="postamble">
-<p class="date">Date: 2012-09-07 00:11:00 </p>
+<p class="date">Date: 2012-09-07 12:48:36 </p>
 <p class="author">Author: AKIYAMA Kouhei</p>
 <p class="creator">Org version 7.8.03 with Emacs version 23</p>
 <a href="http://validator.w3.org/check?uri=referer">Validate XHTML 1.0</a>
