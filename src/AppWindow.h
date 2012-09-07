@@ -45,6 +45,7 @@ namespace piclist{
 		virtual void onMouseWheel(int delta, unsigned int keys, int x, int y);
 		virtual void onRButtonUp(unsigned int keys, int x, int y);
 		virtual void onCopyData(HWND srcwnd, ULONG_PTR dwData, DWORD cbData, PVOID lpData);
+		virtual void onDropFiles(HDROP hDrop);
 		virtual void onCommand(int notificationCode, int id, HWND hWndControl);
 
 	private:

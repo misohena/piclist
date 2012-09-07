@@ -129,6 +129,7 @@ void AppWindow::onCreate()
 {
 	setCaption(makeWindowCaption(windowName_));
 	updateLayout();
+	dragAcceptFiles(true);
 }
 
 void AppWindow::onDestroy()
@@ -229,6 +230,36 @@ void AppWindow::onRButtonUp(unsigned int keys, int x, int y)
 void AppWindow::onCopyData(HWND srcwnd, ULONG_PTR dwData, DWORD cbData, PVOID lpData)
 {
 	receiveInterProcessCommand(dwData, cbData, static_cast<unsigned char *>(lpData));
+}
+
+void AppWindow::onDropFiles(HDROP hDrop)
+{
+	const unsigned int count = ::DragQueryFile(hDrop, -1, NULL, 0);
+	for(unsigned int index = 0; index < count; ++index){
+
+		unsigned int length = ::DragQueryFile(hDrop, index, NULL, 0);
+		if(length == 0){
+			continue;
+		}
+		std::vector<TCHAR> buffer(length+1);
+		::DragQueryFile(hDrop, index, &buffer[0], buffer.size());
+		const String file(&buffer[0]);
+
+		if(isExistingDirectory(file)){
+			for(FileEnumerator fe(file + _T("\\*")); fe.valid(); fe.increment()){
+				const String fileInDir = fe.getEntryFilePath();
+				if(hasSupportedImageFileExtension(fileInDir)){
+					albumItems_.push_back(AlbumPicture::create(fileInDir));
+				}
+			}
+		}
+		else if(isExistingRegularFile(file)){
+			if(hasSupportedImageFileExtension(file)){
+				albumItems_.push_back(AlbumPicture::create(file));
+			}
+		}
+	}
+	updateLayout();
 }
 
 void AppWindow::onCommand(int notificationCode, int id, HWND hWndControl)

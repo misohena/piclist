@@ -35,6 +35,15 @@ namespace piclist{
 	// ----------------------------------------------------------------------
 
 	String getFileNameBase(const String &filepath);
+	String getFileNameExtension(const String &filepath);
+	bool hasSupportedImageFileExtension(const String &filepath);
+
+	// ----------------------------------------------------------------------
+	// file type
+	// ----------------------------------------------------------------------
+
+	bool isExistingDirectory(const String &filepath);
+	bool isExistingRegularFile(const String &filepath);
 
 	// ----------------------------------------------------------------------
 	// File Enumerator

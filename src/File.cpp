@@ -1,5 +1,6 @@
 #include <vector>
 #include <cstdlib>
+#include <cctype>
 #include <windows.h>
 #include <tchar.h>
 #include "File.h"
@@ -41,6 +42,44 @@ String getFileNameBase(const String &filepath)
 	}
 	return base;
 }
+
+String getFileNameExtension(const String &filepath)
+{
+	String::value_type ext[2048];
+	if(_wsplitpath_s(filepath.c_str(), NULL, 0, NULL, 0, NULL, 0, ext, sizeof(ext)/sizeof(ext[0]))){
+		return String();
+	}
+
+	for(String::value_type *p = ext; *p != _T('\0'); ++p){
+		*p = std::tolower(*p);
+	}
+
+	return ext;
+}
+
+bool hasSupportedImageFileExtension(const String &filepath)
+{
+	const String ext = getFileNameExtension(filepath);
+	return ext == _T(".jpg") || ext == _T(".jpeg") || ext == _T(".png") || ext == _T(".bmp");
+}
+
+
+// ----------------------------------------------------------------------
+// file type
+// ----------------------------------------------------------------------
+
+bool isExistingDirectory(const String &filepath)
+{
+	const DWORD atr = ::GetFileAttributes(filepath.c_str());
+	return atr != INVALID_FILE_ATTRIBUTES && (atr & FILE_ATTRIBUTE_DIRECTORY);
+}
+
+bool isExistingRegularFile(const String &filepath)
+{
+	DWORD attr = ::GetFileAttributes(filepath.c_str());
+	return attr != INVALID_FILE_ATTRIBUTES && !(attr & FILE_ATTRIBUTE_DIRECTORY);
+}
+
 
 // ----------------------------------------------------------------------
 // File Enumerator

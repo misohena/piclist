@@ -51,6 +51,8 @@ namespace piclist{
 		bool backupWindowPlacement(const String &keyname);
 		bool restoreWindowPlacement(const String &keyname);
 
+		void dragAcceptFiles(bool accept);
+
 		// ScrollBar
 
 		void setScrollBarVisible(int bar, bool visible);
@@ -111,6 +113,7 @@ namespace piclist{
 		virtual void onRButtonUp(unsigned int keys, int x, int y);
 		virtual void onCommand(int notificationCode, int id, HWND hWndControl);
 		virtual void onCopyData(HWND srcwnd, ULONG_PTR dwData, DWORD cbData, PVOID lpData);
+		virtual void onDropFiles(HDROP hDrop);
 		virtual void onDestroy();
 
 	};

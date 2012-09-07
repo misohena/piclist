@@ -273,6 +273,15 @@ bool Window::restoreWindowPlacement(const String &keyname)
 }
 
 
+
+void Window::dragAcceptFiles(bool accept)
+{
+	if(hwnd_){
+		::DragAcceptFiles(hwnd_, accept ? TRUE : FALSE);
+	}
+}
+
+
 // --------------------------------------------------------------------------
 // ScrollBar
 // --------------------------------------------------------------------------
@@ -508,6 +517,10 @@ LRESULT Window::wndproc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 			onCopyData((HWND)wparam, cd->dwData, cd->cbData, cd->lpData);
 		}
 		break;
+	case WM_DROPFILES:
+		onDropFiles((HDROP)wparam);
+		::DragFinish((HDROP)wparam);
+		break;
 	case WM_DESTROY:
 		onDestroy();
 		PostQuitMessage(0);
@@ -539,6 +552,7 @@ void Window::onRButtonDown(unsigned int keys, int x, int y){}
 void Window::onRButtonUp(unsigned int keys, int x, int y){}
 void Window::onCommand(int notificationCode, int id, HWND hWndControl){}
 void Window::onCopyData(HWND srcwnd, ULONG_PTR dwData, DWORD cbData, PVOID lpData){}
+void Window::onDropFiles(HDROP hDrop){}
 void Window::onDestroy(){}
 
 }//namespace piclist
