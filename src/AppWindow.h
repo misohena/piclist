@@ -28,6 +28,7 @@ namespace piclist{
 
 		bool restoreWindowPlacement();
 		void setAlbum(const AlbumItemContainer &items);
+		void clearAlbum();
 		void updateLayout();
 
 	private:

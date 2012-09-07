@@ -7,7 +7,7 @@
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
 <meta name="title" content="画像リスト表示プログラム(piclist)"/>
 <meta name="generator" content="Org-mode"/>
-<meta name="generated" content="2012-09-08 00:19:46 "/>
+<meta name="generated" content="2012-09-08 01:40:57 "/>
 <meta name="author" content="AKIYAMA Kouhei"/>
 <meta name="description" content=""/>
 <meta name="keywords" content=""/>
@@ -106,6 +106,7 @@
 <li><a href="#sec-3-2">3.2 ウィンドウ名による複数ウィンドウの識別</a></li>
 <li><a href="#sec-3-3">3.3 改行</a></li>
 <li><a href="#sec-3-4">3.4 右クリックメニュー</a></li>
+<li><a href="#sec-3-5">3.5 ドロップ</a></li>
 </ul>
 </li>
 <li><a href="#sec-4">4 プログラムの構造</a></li>
@@ -250,9 +251,26 @@ piclist A班*.jpg -br B班*.jpg
 </li>
 <li>ウィンドウの複製(同じ内容のウィンドウを別のウィンドウ名で開く)
 </li>
+<li>内容の全消去
+</li>
 </ul>
 
 
+</div>
+
+</div>
+
+<div id="outline-container-3-5" class="outline-3">
+<h3 id="sec-3-5"><span class="section-number-3">3.5</span> ドロップ</h3>
+<div class="outline-text-3" id="text-3-5">
+
+
+<p>
+ウィンドウにファイルやディレクトリをドロップすることで、リストにそれらを追加できます。
+</p>
+<p>
+ディレクトリをドロップすると、そのディレクトリの直下にある画像ファイルをリストの最後に加えます。
+</p>
 </div>
 </div>
 
@@ -344,9 +362,9 @@ Visual Studio 2010でビルドしています。出来るだけ他のライブ�
 </li>
 <li>サムネイルのクリックでファイル名(の一部)をコピーできるようにする。
 </li>
-<li>フォルダやファイルをドロップできるようにする。
+<li><del>フォルダやファイルをドロップできるようにする。</del>
 </li>
-<li>内容を全消去できるようにする。
+<li><del>内容を全消去できるようにする。</del>
 </li>
 <li><del>改行できるようにする。</del> またはセクション(グループ?)分けできるようにする。セクションヘッダー文字を入れられるようにする。
 </li>
@@ -358,6 +376,10 @@ Visual Studio 2010でビルドしています。出来るだけ他のライブ�
 </li>
 <li><del>ウィンドウを複製できるようにする。</del>
 </li>
+<li>コマンドラインにディレクトリを指定したとき、そのディレクトリの中のpng、jpg、bmpファイルを表示するようにする。
+</li>
+<li>ディレクトリがドロップされたとき、ファイル名順にソートする。
+</li>
 </ul>
 
 </div>
@@ -365,7 +387,7 @@ Visual Studio 2010でビルドしています。出来るだけ他のライブ�
 </div>
 
 <div id="postamble">
-<p class="date">Date: 2012-09-08 00:19:46 </p>
+<p class="date">Date: 2012-09-08 01:40:57 </p>
 <p class="author">Author: AKIYAMA Kouhei</p>
 <p class="creator">Org version 7.8.03 with Emacs version 23</p>
 <a href="http://validator.w3.org/check?uri=referer">Validate XHTML 1.0</a>

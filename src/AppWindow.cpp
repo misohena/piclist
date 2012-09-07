@@ -105,6 +105,12 @@ void AppWindow::setAlbum(const AlbumItemContainer &items)
 	updateLayout();
 }
 
+void AppWindow::clearAlbum()
+{
+	albumItems_.clear();
+	updateLayout();
+}
+
 void AppWindow::updateLayout(void)
 {
 	const Size2i clientSize1 = getClientSize();
@@ -290,6 +296,9 @@ void AppWindow::onCommand(int notificationCode, int id, HWND hWndControl)
 		break;
 	case ID_MAINPOPUP_LINE_SPACE:
 		inputLayoutParam(Layout::LP_LINE_SPACE);
+		break;
+	case ID_MAINPOPUP_CLEAR_ALBUM:
+		clearAlbum();
 		break;
 	}
 }
