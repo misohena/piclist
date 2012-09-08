@@ -125,7 +125,21 @@ void CommandLineParser::parse(const String::value_type *cmdLineStr)
 					//unknown
 				}
 			}
-			else{
+			else if(isExistingDirectory(arg)){
+				std::vector<String> files;
+				for(FileEnumerator fe(arg + _T("\\*")); fe.valid(); fe.increment()){
+					const String &f = fe.getEntryFilePath();
+					if(hasSupportedImageFileExtension(f)){
+						files.push_back(f);
+					}
+				}
+				std::sort(files.begin(), files.end());
+				std::transform(files.begin(), files.end(), std::back_inserter(albumItems_), &AlbumPicture::create);
+			}
+			else if(isExistingRegularFile(arg)){
+				albumItems_.push_back(AlbumPicture::create(getFullPathName(arg)));
+			}
+			else{ //wildcard?
 				std::vector<String> files;
 				for(FileEnumerator fe(arg); fe.valid(); fe.increment()){
 					files.push_back(fe.getEntryFilePath());
