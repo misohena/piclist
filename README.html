@@ -7,7 +7,7 @@
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
 <meta name="title" content="画像リスト表示プログラム(piclist)"/>
 <meta name="generator" content="Org-mode"/>
-<meta name="generated" content="2012-09-08 01:44:37 "/>
+<meta name="generated" content="2012-09-09 01:04:37 "/>
 <meta name="author" content="AKIYAMA Kouhei"/>
 <meta name="description" content=""/>
 <meta name="keywords" content=""/>
@@ -155,7 +155,7 @@
 
 
 <pre class="example">
-piclist [-w ウィンドウ名] [ファイル名(ワイルドカード) | -br]...
+piclist [-w ウィンドウ名] [-nc] [ファイル名 | ワイルドカード付きファイル名 | ディレクトリ | -br]...
 </pre>
 
 
@@ -171,15 +171,16 @@ piclist 201205*.jpg
 複数指定すると、指定した順番で表示します。
 </p>
 <pre class="example">
-piclist 201208*.jpg 201205*.jpg
+piclist 201208*.jpg 201205*.jpg last.png
 </pre>
 
 
 <p>
-この場合、201208で始まるファイルが先に並び、その後に201205で始まるファイルが並びます。
+この場合、201208で始まるファイルが先に並び、その後に201205で始まるファイルが並び、最後にlast.pngが並びます。
+ワイルドカードにマッチするファイルが複数ある場合は、ファイル名順にソートされます。
 </p>
 <p>
-ワイルドカードでマッチした複数のファイルは、ファイル名順にソートされて並びます。
+ディレクトリを指定した場合、そのディレクトリの直下にある画像ファイル(拡張子が.jpg、.jpeg、.png、.bmpであるファイル)をリストアップして表示します。
 </p>
 </div>
 
@@ -205,7 +206,7 @@ piclist -w bg 背景\*.jpg
 同じ名前のウィンドウがすでに開いていれば、新にウィンドウを作らず、すでに開いているウィンドウの内容を更新します。
 </p>
 <p>
-上の例の後に次のようにすると、同じウィンドウで東京で始まる背景だけが表示されます。
+上の例の後に次のようにすると、同じウィンドウに東京で始まる背景だけが表示されます。
 </p>
 <pre class="example">
 piclist -w bg 背景\東京*.jpg
@@ -213,7 +214,18 @@ piclist -w bg 背景\東京*.jpg
 
 
 <p>
-ウィンドウの位置・サイズはウィンドウ名毎にレジストリに記録され、次回同じ名前でウィンドウを開いたときに反映されます。
+もし、すでに表示されているファイルはそのまま変えずに、新しいファイルを末尾に追加したければ"-nc"オプションを指定します。
+</p>
+<p>
+例えば上の例の後に次のようにすると、東京で始まる画像の後に岡山で始まる画像が並びます。
+</p>
+<pre class="example">
+piclist -w bg 背景\岡山.jpg -nc
+</pre>
+
+
+<p>
+ウィンドウの位置・サイズ・レイアウト設定はウィンドウ名毎にレジストリに記録され、次回同じ名前でウィンドウを開いたときに反映されます。
 </p>
 </div>
 
@@ -376,11 +388,13 @@ Visual Studio 2010でビルドしています。出来るだけ他のライブ�
 </li>
 <li><del>ウィンドウを複製できるようにする。</del>
 </li>
-<li>コマンドラインにディレクトリを指定したとき、そのディレクトリの中のpng、jpg、bmpファイルを表示するようにする。これが出来ると「送る」で使いやすくなる。
+<li><del>コマンドラインにディレクトリを指定したとき、そのディレクトリの中のpng、jpg、bmpファイルを表示するようにする。これが出来ると「送る」で使いやすくなる。</del>
+</li>
+<li><del>各所でファイル名をフルパス名へ明示的に変換する。</del>
 </li>
 <li>ディレクトリがドロップされたとき、ファイル名順にソートする。
 </li>
-<li>各所でファイル名をフルパス名へ明示的に変換する。
+<li>AlbumItemContainerに対するファイル追加処理をまとめる。Albumクラスを作って、そのメンバにするのが良いと思う。ディレクトリを追加するときの処理はドロップ受付処理とコマンドライン処理とで共通なのでまとめたい。
 </li>
 </ul>
 
@@ -389,7 +403,7 @@ Visual Studio 2010でビルドしています。出来るだけ他のライブ�
 </div>
 
 <div id="postamble">
-<p class="date">Date: 2012-09-08 01:44:37 </p>
+<p class="date">Date: 2012-09-09 01:04:37 </p>
 <p class="author">Author: AKIYAMA Kouhei</p>
 <p class="creator">Org version 7.8.03 with Emacs version 23</p>
 <a href="http://validator.w3.org/check?uri=referer">Validate XHTML 1.0</a>

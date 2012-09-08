@@ -102,6 +102,7 @@ inline std::vector<String> splitCmdLineArgs(const String::value_type *cmdLineStr
 
 CommandLineParser::CommandLineParser()
 	: windowName_(_T("Default"))
+	, noClearFlag_(false)
 {}
 
 void CommandLineParser::parse(const String::value_type *cmdLineStr)
@@ -120,6 +121,9 @@ void CommandLineParser::parse(const String::value_type *cmdLineStr)
 				}
 				else if(arg == _T("-br")){
 					albumItems_.push_back(AlbumLineBreak::create());
+				}
+				else if(arg == _T("-nc")){
+					noClearFlag_ = true;
 				}
 				else{
 					//unknown

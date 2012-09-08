@@ -105,6 +105,12 @@ void AppWindow::setAlbum(const AlbumItemContainer &items)
 	updateLayout();
 }
 
+void AppWindow::appendAlbum(const AlbumItemContainer &items)
+{
+	albumItems_.insert(albumItems_.end(), items.begin(), items.end());
+	updateLayout();
+}
+
 void AppWindow::clearAlbum()
 {
 	albumItems_.clear();
@@ -433,7 +439,12 @@ void AppWindow::receiveCommandLine(unsigned int cbData, unsigned char *lpData)
 		CommandLineParser cmdline;
 		cmdline.parse(cmdlineStr.c_str());
 
-		setAlbum(cmdline.getAlbum());
+		if(cmdline.getNoClearFlag()){
+			appendAlbum(cmdline.getAlbum());
+		}
+		else{
+			setAlbum(cmdline.getAlbum());
+		}
 	}
 }
 
