@@ -34,6 +34,21 @@ bool setCurrentDirectory(const String &dir)
 // filename component
 // ----------------------------------------------------------------------
 
+String getFullPathName(const String &filepath)
+{
+	const DWORD requiredLength = ::GetFullPathName(filepath.c_str(), 0, NULL, NULL);
+	if(requiredLength == 0){
+		return String();
+	}
+	std::vector<TCHAR> buffer(requiredLength);
+	const DWORD copiedLength = ::GetFullPathName(filepath.c_str(), buffer.size(), &buffer[0], NULL);
+	if(copiedLength == 0 || copiedLength > buffer.size()){
+		return String();
+	}
+	return String(&buffer[0]);
+}
+
+
 String getFileNameBase(const String &filepath)
 {
 	String::value_type base[2048];

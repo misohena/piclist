@@ -458,7 +458,7 @@ void AppWindow::sendAlbum(HWND dstWnd, const AlbumItemContainer &albumItems)
 			OutputContent(VectorOutputStream &os) : os(os){}
 			void operator()(const AlbumPicture &pic) const
 			{
-				os.writeString(pic.getFilePath()); ///@todo 確実にフルパスにしなければならないのでは無いか。今のところたまたまフルパスになるけど。
+				os.writeString(getFullPathName(pic.getFilePath()));
 			}
 			void operator()(const AlbumLineBreak &) const
 			{

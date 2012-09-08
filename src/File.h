@@ -34,6 +34,8 @@ namespace piclist{
 	// filename component
 	// ----------------------------------------------------------------------
 
+	String getFullPathName(const String &filepath);
+
 	String getFileNameBase(const String &filepath);
 	String getFileNameExtension(const String &filepath);
 	bool hasSupportedImageFileExtension(const String &filepath);
